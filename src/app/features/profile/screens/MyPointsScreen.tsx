@@ -1,8 +1,7 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
-import { Button, Card, Text } from 'react-native-paper';
+import { Card, Text } from 'react-native-paper';
 import { useAppSelector } from '../../../store/hooks';
-import PointsHistoryList from '../components/PointsHistoryList';
 
 const MyPointsScreen = () => {
   const { points, pointsHistory } = useAppSelector((state) => state.profile);
@@ -10,21 +9,28 @@ const MyPointsScreen = () => {
   return (
     <View style={styles.container}>
       <Card style={styles.card}>
-        <Card.Title title="POINT BALANCE" />
         <Card.Content>
-          <Text variant="headlineMedium">{points} pts</Text>
-          <Text>0 points will expire on Feb 08, 2025</Text>
-          <Button mode="contained" style={styles.button}>
-            Charge
-          </Button>
+          <Text variant="labelLarge">point(s)</Text>
+          <Text variant="titleMedium" style={styles.balanceLabel}>
+            POINT BALANCE
+          </Text>
+          <Text variant="displaySmall">{points}</Text>
+          <Text style={styles.expiry}>0 points will expire on Feb 08, 2025</Text>
         </Card.Content>
       </Card>
-      <Card>
-        <Card.Title title="History" />
-        <Card.Content>
-          <PointsHistoryList items={pointsHistory} />
-        </Card.Content>
-      </Card>
+
+      <Text variant="titleMedium" style={styles.sectionTitle}>
+        CREDIT HISTORY
+      </Text>
+      {pointsHistory.map((item) => (
+        <Card key={item.id} style={styles.historyCard}>
+          <Card.Content style={styles.historyRow}>
+            <Text style={styles.historyDate}>{item.date}</Text>
+            <Text style={styles.historyAmount}>{item.delta > 0 ? `+${item.delta}` : item.delta} points</Text>
+            <Text>{item.description}</Text>
+          </Card.Content>
+        </Card>
+      ))}
     </View>
   );
 };
@@ -34,10 +40,36 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   card: {
-    marginBottom: 12,
+    paddingVertical: 4,
   },
-  button: {
+  balanceLabel: {
+    marginTop: 4,
+    color: '#6b7280',
+  },
+  expiry: {
     marginTop: 8,
+    color: '#9ca3af',
+  },
+  sectionTitle: {
+    marginTop: 4,
+  },
+  historyCard: {
+    borderRadius: 10,
+  },
+  historyRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    gap: 8,
+  },
+  historyDate: {
+    flex: 1,
+    color: '#6b7280',
+  },
+  historyAmount: {
+    color: '#0ea5e9',
+    minWidth: 80,
+    textAlign: 'right',
   },
 });
 

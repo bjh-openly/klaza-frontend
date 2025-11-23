@@ -31,8 +31,8 @@ const eventsSlice = createSlice({
   initialState,
   reducers: {
     votePoll(state, action: PayloadAction<{ pollId: string; optionId: string }>) {
-      // placeholder reducer for tracking participation
       state.results.unshift(`You voted on poll ${action.payload.pollId}`);
+      state.points += 1;
     },
     enterRaffle(state, action: PayloadAction<string>) {
       state.points = Math.max(0, state.points - 2);

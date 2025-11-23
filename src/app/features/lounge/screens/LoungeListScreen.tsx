@@ -1,11 +1,13 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
-import { Text } from 'react-native-paper';
+import { Chip, Text } from 'react-native-paper';
 import LoungeFeed from '../components/LoungeFeed';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { LoungeStackParamList } from '../../../navigation/types';
 import { ROUTES } from '../../../config/constants';
+
+const categories = ['Fanmade', 'KLAZA made', 'Poll', 'Post'];
 
 const LoungeListScreen = () => {
   const navigation = useNavigation<NativeStackNavigationProp<LoungeStackParamList>>();
@@ -19,9 +21,16 @@ const LoungeListScreen = () => {
       header={
         <View style={styles.header}>
           <Text variant="headlineMedium" style={styles.title}>
-            Lounge-main
+            Share the StoryTM
           </Text>
-          <Text style={styles.subtitle}>KLAZA에 등록된 글만 모아서 보여줄게요.</Text>
+          <Text style={styles.subtitle}>Dive into today’s feature</Text>
+          <View style={styles.chips}>
+            {categories.map((label) => (
+              <Chip key={label} style={styles.chip}>
+                {label}
+              </Chip>
+            ))}
+          </View>
         </View>
       }
       onPressItem={openDetail}
@@ -32,13 +41,21 @@ const LoungeListScreen = () => {
 const styles = StyleSheet.create({
   header: {
     marginBottom: 12,
+    gap: 8,
   },
   title: {
     fontWeight: '700',
   },
   subtitle: {
     color: '#6b7280',
-    marginTop: 4,
+  },
+  chips: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  chip: {
+    marginRight: 6,
   },
 });
 

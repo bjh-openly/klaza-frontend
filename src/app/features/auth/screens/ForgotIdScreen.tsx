@@ -1,31 +1,57 @@
 import React, { useState } from 'react';
-import { ScrollView, StyleSheet } from 'react-native';
-import { Button, Text, HelperText } from 'react-native-paper';
+import { ScrollView, StyleSheet, View } from 'react-native';
+import { Button, HelperText, Text } from 'react-native-paper';
 import AuthTextInput from '../components/AuthTextInput';
 import OtpCodeInput from '../components/OtpCodeInput';
 
 const ForgotIdScreen = () => {
-  const [email, setEmail] = useState('');
+  const [contact, setContact] = useState('');
+  const [identifier, setIdentifier] = useState('');
   const [code, setCode] = useState('');
   const [sent, setSent] = useState(false);
+  const [verified, setVerified] = useState(false);
+
+  const handleVerify = () => {
+    if (code.length === 6) {
+      setVerified(true);
+    }
+  };
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <Text variant="headlineSmall" style={styles.title}>
-        Recover your ID
+        Find ID/E-mail address
       </Text>
-      <AuthTextInput label="Email or phone" value={email} onChangeText={setEmail} />
+      <AuthTextInput
+        label="Phone number"
+        value={contact}
+        onChangeText={setContact}
+        autoComplete="tel"
+        keyboardType="phone-pad"
+      />
+      <AuthTextInput
+        label="ID / E-mail address"
+        value={identifier}
+        onChangeText={setIdentifier}
+        autoCapitalize="none"
+        style={styles.input}
+      />
       <Button mode="contained" onPress={() => setSent(true)} style={styles.button}>
         Send 6-digit code
       </Button>
       {sent && (
-        <>
-          <HelperText type="info">Check your inbox for the verification code.</HelperText>
+        <View style={styles.verification}>
+          <HelperText type="info">
+            Verify with a 6-digit code sent to your phone. (This may take a few minutes)
+          </HelperText>
           <OtpCodeInput value={code} setValue={setCode} />
-          <Button mode="contained" disabled={code.length < 6}>
+          <Button mode="contained" onPress={handleVerify} disabled={code.length < 6} style={styles.button}>
             Verify
           </Button>
-        </>
+          {verified && (
+            <Text style={styles.result}>Your ID / E-mail address is: Email@email.com</Text>
+          )}
+        </View>
       )}
     </ScrollView>
   );
@@ -34,12 +60,24 @@ const ForgotIdScreen = () => {
 const styles = StyleSheet.create({
   container: {
     padding: 16,
+    flexGrow: 1,
   },
   title: {
     marginBottom: 12,
   },
+  input: {
+    marginTop: 8,
+  },
   button: {
     marginTop: 12,
+  },
+  verification: {
+    marginTop: 16,
+    gap: 8,
+  },
+  result: {
+    marginTop: 8,
+    fontWeight: '600',
   },
 });
 

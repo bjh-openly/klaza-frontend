@@ -1,20 +1,23 @@
 import React from 'react';
-import { ScrollView, StyleSheet } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import { Card, Text } from 'react-native-paper';
 
 const activities = [
-  { id: 'a1', date: '2024-06-02', text: 'Joined SCI-FY clan' },
-  { id: 'a2', date: '2024-06-01', text: 'Voted on weekly poll' },
-  { id: 'a3', date: '2024-05-30', text: 'Commented on KLAZA editorial' },
+  { id: 'a1', type: 'CLAN', date: 'Jan 05, 2025', description: 'Joined SCI-FY clan' },
+  { id: 'a2', type: 'PLAZA', date: 'Jan 03, 2025', description: 'Commented on KLAZA editorial' },
+  { id: 'a3', type: 'POLL', date: 'Dec 28, 2024', description: 'Voted on weekly poll' },
 ];
 
 const MyActivityScreen = () => (
   <ScrollView contentContainerStyle={styles.container}>
     {activities.map((activity) => (
       <Card key={activity.id} style={styles.card}>
-        <Card.Title title={activity.date} />
         <Card.Content>
-          <Text>{activity.text}</Text>
+          <View style={styles.headerRow}>
+            <Text variant="titleMedium">{activity.type}</Text>
+            <Text style={styles.date}>{activity.date}</Text>
+          </View>
+          <Text>{activity.description}</Text>
         </Card.Content>
       </Card>
     ))}
@@ -22,8 +25,10 @@ const MyActivityScreen = () => (
 );
 
 const styles = StyleSheet.create({
-  container: { padding: 8 },
-  card: { marginVertical: 6 },
+  container: { padding: 8, gap: 8 },
+  card: { borderRadius: 12 },
+  headerRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4 },
+  date: { color: '#6b7280' },
 });
 
 export default MyActivityScreen;
