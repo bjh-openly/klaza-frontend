@@ -1,38 +1,33 @@
 import React from 'react';
-import { ScrollView, StyleSheet } from 'react-native';
-import { Card, Chip, Text } from 'react-native-paper';
-import { useGetPostsQuery } from '../../../services/klazaApi';
-import SectionHeader from '../../../components/common/SectionHeader';
+import { StyleSheet, View } from 'react-native';
+import { Text } from 'react-native-paper';
+import LoungeFeed from '../components/LoungeFeed';
 
 const LoungeListScreen = () => {
-  const { data = [] } = useGetPostsQuery();
-
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <SectionHeader title="KLAZA Lounge" />
-      {data.map((post) => (
-        <Card key={post.id} style={styles.card}>
-          <Card.Title title={post.title} subtitle={post.label} />
-          <Card.Content>
-            <Text>{post.summary}</Text>
-            <Chip style={styles.chip}>{post.label}</Chip>
-          </Card.Content>
-        </Card>
-      ))}
-    </ScrollView>
+    <LoungeFeed
+      header={
+        <View style={styles.header}>
+          <Text variant="headlineMedium" style={styles.title}>
+            Lounge-main
+          </Text>
+          <Text style={styles.subtitle}>KLAZA에 등록된 글만 모아서 보여줄게요.</Text>
+        </View>
+      }
+    />
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    padding: 16,
-  },
-  card: {
+  header: {
     marginBottom: 12,
   },
-  chip: {
-    marginTop: 8,
-    alignSelf: 'flex-start',
+  title: {
+    fontWeight: '700',
+  },
+  subtitle: {
+    color: '#6b7280',
+    marginTop: 4,
   },
 });
 

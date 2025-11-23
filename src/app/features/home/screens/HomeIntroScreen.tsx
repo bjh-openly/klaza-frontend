@@ -1,54 +1,107 @@
 import React from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
-import { Button, Text } from 'react-native-paper';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { ImageBackground, StyleSheet, View } from 'react-native';
+import { IconButton, Text } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
-import { HomeStackParamList } from '../../../navigation/types';
-import { ROUTES } from '../../../config/constants';
 import AppSafeArea from '../../../components/layout/AppSafeArea';
+import LoungeFeed from '../../lounge/components/LoungeFeed';
+import { ROUTES } from '../../../config/constants';
+import { useAppSelector } from '../../../store/hooks';
 
 const HomeIntroScreen = () => {
-  const navigation = useNavigation<NativeStackNavigationProp<HomeStackParamList>>();
+  const navigation = useNavigation();
+  const { accessToken } = useAppSelector((state) => state.auth);
+
+  const goProfile = () => {
+    const rootNav = navigation.getParent()?.getParent();
+    if (accessToken) {
+      rootNav?.navigate(ROUTES.MY_PAGE as never) || navigation.navigate(ROUTES.MY_PAGE as never);
+    } else {
+      rootNav?.navigate(ROUTES.AUTH as never, { screen: ROUTES.SIGN_IN } as never) ||
+        navigation.navigate(ROUTES.AUTH as never, { screen: ROUTES.SIGN_IN } as never);
+    }
+  };
 
   return (
     <AppSafeArea>
-      <ScrollView contentContainerStyle={styles.content}>
-        <View style={styles.hero}>
-          <Text variant="headlineMedium" style={styles.title}>
-            Share the Story™
-          </Text>
-          <Text variant="bodyLarge" style={styles.subtitle}>
-            KLAZA Hub is where K-Culture lovers gather to discover lounges, clans, and exclusive events.
-          </Text>
-        </View>
-        <Button mode="contained" onPress={() => navigation.navigate(ROUTES.HOME_DISCOVER)}>
-          Enter
-        </Button>
-        <Text style={styles.helper}>Already a member? Sign in from the tabs below.</Text>
-      </ScrollView>
+      <LoungeFeed
+        contentPadding={0}
+        header={
+          <>
+            <ImageBackground
+              source={{ uri: 'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=1200&q=80' }}
+              style={styles.hero}
+              imageStyle={styles.heroImage}
+            >
+              <View style={styles.heroOverlay}>
+                <View style={styles.heroHeader}>
+                  <Text variant="titleLarge" style={styles.logo}>
+                    KLAZA<Text style={styles.logoAccent}>Hub</Text>
+                  </Text>
+                  <IconButton icon="account-circle" iconColor="#fff" size={28} onPress={goProfile} />
+                </View>
+                <Text variant="displaySmall" style={styles.heroTitle}>
+                  Share the Story™
+                </Text>
+                <Text style={styles.heroSubtitle}>오늘의 라운지 포스트를 만나보세요.</Text>
+              </View>
+            </ImageBackground>
+            <View style={styles.sectionTitle}>
+              <Text variant="titleMedium" style={styles.sectionLabel}>
+                Lounge
+              </Text>
+              <Text style={styles.sectionDescription}>클라자에 올라온 글을 최신 순으로 보여줘요.</Text>
+            </View>
+          </>
+        }
+      />
     </AppSafeArea>
   );
 };
 
 const styles = StyleSheet.create({
-  content: {
-    flexGrow: 1,
-    padding: 24,
-    justifyContent: 'center',
-  },
   hero: {
-    marginBottom: 24,
+    height: 320,
   },
-  title: {
-    marginBottom: 12,
+  heroImage: {
+    resizeMode: 'cover',
   },
-  subtitle: {
-    color: '#4b5563',
+  heroOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.35)',
+    padding: 20,
+    justifyContent: 'flex-end',
   },
-  helper: {
-    marginTop: 12,
-    textAlign: 'center',
+  heroHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  logo: {
+    color: '#fff',
+    letterSpacing: 1.5,
+  },
+  logoAccent: {
+    color: '#f59e0b',
+  },
+  heroTitle: {
+    color: '#fff',
+    marginTop: 16,
+  },
+  heroSubtitle: {
+    color: '#e5e7eb',
+    marginTop: 6,
+  },
+  sectionTitle: {
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    backgroundColor: '#fff',
+  },
+  sectionLabel: {
+    fontWeight: '700',
+  },
+  sectionDescription: {
     color: '#6b7280',
+    marginTop: 4,
   },
 });
 

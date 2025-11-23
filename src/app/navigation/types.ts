@@ -5,7 +5,7 @@ export type RootStackParamList = {
   [ROUTES.SPLASH]: undefined;
   [ROUTES.AUTH]: NavigatorScreenParams<AuthStackParamList> | undefined;
   [ROUTES.MAIN]: NavigatorScreenParams<MainTabParamList> | undefined;
-  [ROUTES.ONBOARDING]: NavigatorScreenParams<OnboardingStackParamList> | undefined;
+  [ROUTES.MY_PAGE]: undefined;
 };
 
 export type OnboardingStackParamList = {
@@ -30,15 +30,13 @@ export type AuthStackParamList = {
 
 export type HomeStackParamList = {
   [ROUTES.HOME_INTRO]: undefined;
-  [ROUTES.HOME_DISCOVER]: undefined;
 };
 
 export type MainTabParamList = {
   [TABS.HOME]: NavigatorScreenParams<HomeStackParamList> | undefined;
   [TABS.LOUNGE]: undefined;
-  [TABS.CLAN]: undefined;
   [TABS.EVENTS]: undefined;
-  [TABS.MY]: undefined;
+  [TABS.CLAN]: undefined;
 };
 
 export type LoungeStackParamList = {
