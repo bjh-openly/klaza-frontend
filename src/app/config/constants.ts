@@ -19,8 +19,8 @@ export const ROUTES = {
   SIGN_UP_FAVORITES: 'SignUpFavorites',
   SIGN_UP_DONE: 'SignUpDone',
   HOME_INTRO: 'HomeIntro',
-  HOME_DISCOVER: 'HomeDiscover',
   LOUNGE: 'LoungeList',
+  LOUNGE_DETAIL: 'LoungeDetail',
   CLAN: 'ClanList',
   EVENTS: 'EventsHome',
   MY_PAGE: 'MyPage',
@@ -35,7 +35,6 @@ export const ROUTES = {
 export const TABS = {
   HOME: 'HomeTab',
   LOUNGE: 'LoungeTab',
-  CLAN: 'ClanTab',
   EVENTS: 'EventsTab',
-  MY: 'MyTab',
+  CLAN: 'ClanTab',
 };

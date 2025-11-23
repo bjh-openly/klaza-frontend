@@ -43,6 +43,9 @@
     "typescript": "^5.3.3"
   },
   "jest": {
-    "preset": "jest-expo"
+    "preset": "jest-expo",
+    "moduleNameMapper": {
+      "^react-native-gesture-handler$": "<rootDir>/__mocks__/react-native-gesture-handler.js"
+    }
   }
 }

@@ -3,6 +3,7 @@ import authReducer from '../features/auth/slice';
 import clanReducer from '../features/clan/slice';
 import eventsReducer from '../features/events/slice';
 import profileReducer from '../features/profile/slice';
+import loungeReducer from '../features/lounge/store/loungeSlice';
 import { authApi } from '../services/authApi';
 import { klazaApi } from '../services/klazaApi';
 import { clanApi } from '../services/clanApi';
@@ -13,6 +14,7 @@ const rootReducer = combineReducers({
   clan: clanReducer,
   events: eventsReducer,
   profile: profileReducer,
+  lounge: loungeReducer,
   [authApi.reducerPath]: authApi.reducer,
   [klazaApi.reducerPath]: klazaApi.reducer,
   [clanApi.reducerPath]: clanApi.reducer,
