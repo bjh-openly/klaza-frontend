@@ -1,117 +1,152 @@
 import React from 'react';
-import { ImageBackground, StyleSheet, View } from 'react-native';
-import { IconButton, Text } from 'react-native-paper';
-import { useNavigation } from '@react-navigation/native';
+import { ImageBackground, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Chip, Text } from 'react-native-paper';
 import AppSafeArea from '../../../components/layout/AppSafeArea';
-import LoungeFeed from '../../lounge/components/LoungeFeed';
-import { ROUTES, TABS } from '../../../config/constants';
-import { useAppSelector } from '../../../store/hooks';
-import { KlazaSearchItem } from '../../../services/klazaApi';
+import AppHeader from '../../../components/layout/AppHeader';
+
+const heroTitle = 'The art of ambiguity in Korean drama titles';
+const listItems = [
+  {
+    type: 'Poll',
+    title: 'Legendary creatures in Korean film',
+    imageUri: 'https://images.unsplash.com/photo-1505685296765-3a2736de412f?auto=format&fit=crop&w=1200&q=80',
+  },
+  {
+    type: 'Fanmade',
+    title: 'Drama trailer for <A Magical Girl Retires>',
+    imageUri: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1200&q=80',
+  },
+  {
+    type: 'Fanmade',
+    title: 'Fan art collection for the movie <Wonderland>',
+    imageUri: 'https://images.unsplash.com/photo-1502134249126-9f3755a50d78?auto=format&fit=crop&w=1200&q=80',
+  },
+];
+
+const heroImageUri = 'https://images.unsplash.com/photo-1501854140801-50d01698950b?auto=format&fit=crop&w=1400&q=80';
 
 const HomeIntroScreen = () => {
-  const navigation = useNavigation();
-  const { accessToken } = useAppSelector((state) => state.auth);
-  const tabNav = navigation.getParent();
-  const rootNav = navigation.getParent()?.getParent();
-
-  const goProfile = () => {
-    if (accessToken) {
-      rootNav?.navigate(ROUTES.MY_PAGE as never) || navigation.navigate(ROUTES.MY_PAGE as never);
-    } else {
-      rootNav?.navigate(ROUTES.AUTH as never, { screen: ROUTES.SIGN_IN } as never) ||
-        navigation.navigate(ROUTES.AUTH as never, { screen: ROUTES.SIGN_IN } as never);
-    }
-  };
-
-  const openLoungeDetail = (item: KlazaSearchItem) => {
-    tabNav?.navigate(TABS.LOUNGE as never, {
-      screen: ROUTES.LOUNGE_DETAIL,
-      params: { item },
-    } as never);
-  };
-
   return (
     <AppSafeArea>
-      <LoungeFeed
-        contentPadding={0}
-        onPressItem={openLoungeDetail}
-        header={
-          <>
+      <AppHeader />
+      <ScrollView contentContainerStyle={styles.scrollContent}>
+        <TouchableOpacity activeOpacity={0.92}>
+          <ImageBackground source={{ uri: heroImageUri }} style={styles.heroImage} imageStyle={styles.heroImageInner}>
+            <View style={styles.heroOverlay}>
+              <Chip style={styles.heroTag} textStyle={styles.heroTagText}>
+                Post
+              </Chip>
+              <Text style={styles.heroTitle}>{heroTitle}</Text>
+              <View style={styles.paginationDots}>
+                <View style={[styles.dot, styles.dotActive]} />
+                <View style={styles.dot} />
+                <View style={styles.dot} />
+                <View style={styles.dot} />
+              </View>
+            </View>
+          </ImageBackground>
+        </TouchableOpacity>
+
+        {listItems.map((item) => (
+          <TouchableOpacity key={item.title} style={styles.listCard} activeOpacity={0.92}>
             <ImageBackground
-              source={{ uri: 'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=1200&q=80' }}
-              style={styles.hero}
-              imageStyle={styles.heroImage}
+              source={{ uri: item.imageUri }}
+              style={styles.listImage}
+              imageStyle={styles.listImageInner}
             >
-              <View style={styles.heroOverlay}>
-                <View style={styles.heroHeader}>
-                  <Text variant="titleLarge" style={styles.logo}>
-                    KLAZA<Text style={styles.logoAccent}>Hub</Text>
-                  </Text>
-                  <IconButton icon="account-circle" iconColor="#fff" size={28} onPress={goProfile} />
-                </View>
-                <Text variant="displaySmall" style={styles.heroTitle}>
-                  Share the Story™
+              <View style={styles.listOverlay}>
+                <Chip style={styles.listTag} textStyle={styles.listTagText}>
+                  {item.type}
+                </Chip>
+                <Text style={styles.listTitle} numberOfLines={2}>
+                  {item.title}
                 </Text>
-                <Text style={styles.heroSubtitle}>오늘의 라운지 포스트를 만나보세요.</Text>
               </View>
             </ImageBackground>
-            <View style={styles.sectionTitle}>
-              <Text variant="titleMedium" style={styles.sectionLabel}>
-                Lounge
-              </Text>
-              <Text style={styles.sectionDescription}>클라자에 올라온 글을 최신 순으로 보여줘요.</Text>
-            </View>
-          </>
-        }
-      />
+          </TouchableOpacity>
+        ))}
+      </ScrollView>
     </AppSafeArea>
   );
 };
 
 const styles = StyleSheet.create({
-  hero: {
-    height: 320,
+  scrollContent: {
+    paddingBottom: 80,
+    backgroundColor: '#000000',
   },
   heroImage: {
-    resizeMode: 'cover',
+    height: 280,
+    marginBottom: 10,
+  },
+  heroImageInner: {
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
   },
   heroOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.35)',
-    padding: 20,
     justifyContent: 'flex-end',
+    paddingHorizontal: 16,
+    paddingBottom: 16,
+    backgroundColor: 'rgba(0,0,0,0.2)',
   },
-  heroHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+  heroTag: {
+    alignSelf: 'flex-start',
+    backgroundColor: 'rgba(255,255,255,0.8)',
+    marginBottom: 8,
   },
-  logo: {
-    color: '#fff',
-    letterSpacing: 1.5,
-  },
-  logoAccent: {
-    color: '#f59e0b',
+  heroTagText: {
+    color: '#111827',
+    fontWeight: '600',
   },
   heroTitle: {
-    color: '#fff',
-    marginTop: 16,
-  },
-  heroSubtitle: {
-    color: '#e5e7eb',
-    marginTop: 6,
-  },
-  sectionTitle: {
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-    backgroundColor: '#fff',
-  },
-  sectionLabel: {
+    color: '#F9FAFB',
+    fontSize: 20,
     fontWeight: '700',
   },
-  sectionDescription: {
-    color: '#6b7280',
-    marginTop: 4,
+  paginationDots: {
+    flexDirection: 'row',
+    alignSelf: 'flex-end',
+    marginTop: 8,
+  },
+  dot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: 'rgba(249,250,251,0.4)',
+    marginLeft: 4,
+  },
+  dotActive: {
+    backgroundColor: '#F9FAFB',
+  },
+  listCard: {
+    marginTop: 2,
+  },
+  listImage: {
+    height: 150,
+    width: '100%',
+  },
+  listImageInner: {},
+  listOverlay: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    backgroundColor: 'rgba(0,0,0,0.25)',
+  },
+  listTag: {
+    alignSelf: 'flex-start',
+    backgroundColor: 'rgba(255,255,255,0.85)',
+    marginBottom: 6,
+  },
+  listTagText: {
+    color: '#111827',
+    fontWeight: '600',
+  },
+  listTitle: {
+    color: '#F9FAFB',
+    fontSize: 16,
+    fontWeight: '700',
   },
 });
 

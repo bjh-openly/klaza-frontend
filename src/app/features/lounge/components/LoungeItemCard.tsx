@@ -43,19 +43,21 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     overflow: 'hidden',
     borderRadius: 16,
+    backgroundColor: '#111827',
   },
   content: {
     paddingTop: 12,
   },
   title: {
     marginBottom: 8,
+    color: '#F9FAFB',
   },
   snippet: {
-    color: '#475569',
+    color: '#E5E7EB',
   },
   date: {
     marginTop: 10,
-    color: '#94a3b8',
+    color: '#9CA3AF',
     fontSize: 12,
   },
   chip: {
@@ -67,7 +69,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   meta: {
-    color: '#6b7280',
+    color: '#9CA3AF',
   },
 });
 

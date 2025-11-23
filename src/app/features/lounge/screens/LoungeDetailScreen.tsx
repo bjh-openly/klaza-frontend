@@ -7,6 +7,7 @@ import { ROUTES } from '../../../config/constants';
 import AppSafeArea from '../../../components/layout/AppSafeArea';
 import { useAppSelector } from '../../../store/hooks';
 import { selectLoungeByContentId } from '../store/loungeSlice';
+import AppHeader from '../../../components/layout/AppHeader';
 
 const LoungeDetailScreen = () => {
   const route = useRoute<RouteProp<LoungeStackParamList, typeof ROUTES.LOUNGE_DETAIL>>();
@@ -22,6 +23,7 @@ const LoungeDetailScreen = () => {
 
   return (
     <AppSafeArea>
+      <AppHeader />
       <ScrollView contentContainerStyle={styles.container}>
         <View style={styles.hero}>
           <Chip style={styles.chip}>{label}</Chip>
@@ -51,6 +53,7 @@ const styles = StyleSheet.create({
   container: {
     padding: 16,
     gap: 12,
+    backgroundColor: '#000000',
   },
   hero: {
     gap: 6,
@@ -59,14 +62,15 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
   },
   meta: {
-    color: '#6b7280',
+    color: '#9CA3AF',
   },
   title: {
     fontWeight: '700',
+    color: '#F9FAFB',
   },
   body: {
     lineHeight: 22,
-    color: '#1f2937',
+    color: '#E5E7EB',
   },
   divider: {
     marginVertical: 8,
@@ -75,7 +79,7 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   comment: {
-    color: '#4b5563',
+    color: '#E5E7EB',
   },
 });
 

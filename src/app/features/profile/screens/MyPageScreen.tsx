@@ -8,6 +8,8 @@ import ChargeScreen from './ChargeScreen';
 import { useAppDispatch } from '../../../store/hooks';
 import { signOut } from '../../auth/slice';
 import { clearStoredAccessToken } from '../../../services/session';
+import AppSafeArea from '../../../components/layout/AppSafeArea';
+import AppHeader from '../../../components/layout/AppHeader';
 
 const MyPageScreen = () => {
   const [tab, setTab] = useState<'info' | 'points' | 'activity' | 'charge'>('info');
@@ -43,44 +45,49 @@ const MyPageScreen = () => {
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <Text variant="headlineMedium" style={styles.title}>
-        {tabLabel}
-      </Text>
-      <SegmentedButtons
-        value={tab}
-        onValueChange={(value) => setTab(value as any)}
-        buttons={[
-          { value: 'info', label: 'MY INFO' },
-          { value: 'points', label: 'MY POINTS' },
-          { value: 'activity', label: 'MY ACTIVITY' },
-          { value: 'charge', label: 'CHARGE' },
-        ]}
-      />
-      <View style={styles.content}>{renderContent}</View>
-      <Button mode="outlined" onPress={() => setShowConfirm(true)} style={styles.signOut}>
-        Sign Out
-      </Button>
+    <AppSafeArea>
+      <AppHeader showProfileIcon={false} />
+      <ScrollView contentContainerStyle={styles.container}>
+        <Text variant="headlineMedium" style={styles.title}>
+          {tabLabel}
+        </Text>
+        <SegmentedButtons
+          value={tab}
+          onValueChange={(value) => setTab(value as any)}
+          buttons={[
+            { value: 'info', label: 'MY INFO' },
+            { value: 'points', label: 'MY POINTS' },
+            { value: 'activity', label: 'MY ACTIVITY' },
+            { value: 'charge', label: 'CHARGE' },
+          ]}
+        />
+        <View style={styles.content}>{renderContent}</View>
+        <Button mode="outlined" onPress={() => setShowConfirm(true)} style={styles.signOut}>
+          Sign Out
+        </Button>
 
-      <Portal>
-        <Dialog visible={showConfirm} onDismiss={() => setShowConfirm(false)}>
-          <Dialog.Title>Are you sure you want to leave?</Dialog.Title>
-          <Dialog.Actions>
-            <Button onPress={() => setShowConfirm(false)}>No, still more to do.</Button>
-            <Button onPress={handleSignOut}>Yes, for now.</Button>
-          </Dialog.Actions>
-        </Dialog>
-      </Portal>
-    </ScrollView>
+        <Portal>
+          <Dialog visible={showConfirm} onDismiss={() => setShowConfirm(false)}>
+            <Dialog.Title>Are you sure you want to leave?</Dialog.Title>
+            <Dialog.Actions>
+              <Button onPress={() => setShowConfirm(false)}>No, still more to do.</Button>
+              <Button onPress={handleSignOut}>Yes, for now.</Button>
+            </Dialog.Actions>
+          </Dialog>
+        </Portal>
+      </ScrollView>
+    </AppSafeArea>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     padding: 16,
+    backgroundColor: '#000000',
   },
   title: {
     marginBottom: 12,
+    color: '#F9FAFB',
   },
   content: {
     marginTop: 16,

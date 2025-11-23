@@ -6,6 +6,8 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { LoungeStackParamList } from '../../../navigation/types';
 import { ROUTES } from '../../../config/constants';
+import AppSafeArea from '../../../components/layout/AppSafeArea';
+import AppHeader from '../../../components/layout/AppHeader';
 
 const categories = ['Fanmade', 'KLAZA made', 'Poll', 'Post'];
 
@@ -17,24 +19,28 @@ const LoungeListScreen = () => {
   };
 
   return (
-    <LoungeFeed
-      header={
-        <View style={styles.header}>
-          <Text variant="headlineMedium" style={styles.title}>
-            Share the StoryTM
-          </Text>
-          <Text style={styles.subtitle}>Dive into today’s feature</Text>
-          <View style={styles.chips}>
-            {categories.map((label) => (
-              <Chip key={label} style={styles.chip}>
-                {label}
-              </Chip>
-            ))}
+    <AppSafeArea>
+      <AppHeader />
+      <LoungeFeed
+        header={
+          <View style={styles.header}>
+            <Text variant="headlineMedium" style={styles.title}>
+              Share the StoryTM
+            </Text>
+            <Text style={styles.subtitle}>Dive into today’s feature</Text>
+            <View style={styles.chips}>
+              {categories.map((label) => (
+                <Chip key={label} style={styles.chip}>
+                  {label}
+                </Chip>
+              ))}
+            </View>
           </View>
-        </View>
-      }
-      onPressItem={openDetail}
-    />
+        }
+        contentPadding={16}
+        onPressItem={openDetail}
+      />
+    </AppSafeArea>
   );
 };
 
@@ -42,12 +48,16 @@ const styles = StyleSheet.create({
   header: {
     marginBottom: 12,
     gap: 8,
+    backgroundColor: '#000000',
+    paddingHorizontal: 16,
+    paddingTop: 12,
   },
   title: {
     fontWeight: '700',
+    color: '#F9FAFB',
   },
   subtitle: {
-    color: '#6b7280',
+    color: '#9CA3AF',
   },
   chips: {
     flexDirection: 'row',

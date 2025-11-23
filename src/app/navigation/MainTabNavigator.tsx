@@ -17,14 +17,20 @@ const MainTabNavigator = () => {
     <Tab.Navigator
       screenOptions={({ route }) => ({
         headerShown: false,
+        tabBarShowLabel: false,
+        tabBarStyle: {
+          backgroundColor: '#000000',
+          borderTopWidth: 0,
+          height: 64,
+        },
         tabBarActiveTintColor: theme.colors.primary,
-        tabBarInactiveTintColor: theme.colors.onSurface,
+        tabBarInactiveTintColor: '#FFFFFF',
         tabBarIcon: ({ color, size }) => {
-          let iconName: string = 'home-outline';
-          if (route.name === TABS.HOME) iconName = 'home-outline';
-          if (route.name === TABS.LOUNGE) iconName = 'newspaper-variant-outline';
-          if (route.name === TABS.EVENTS) iconName = 'ticket-percent-outline';
-          if (route.name === TABS.CLAN) iconName = 'account-group-outline';
+          let iconName: string = 'circle-outline';
+          if (route.name === TABS.HOME) iconName = 'home-variant-outline';
+          if (route.name === TABS.LOUNGE) iconName = 'sofa-single-outline';
+          if (route.name === TABS.EVENTS) iconName = 'party-popper';
+          if (route.name === TABS.CLAN) iconName = 'shield-edit-outline';
           return <MaterialCommunityIcons name={iconName} color={color} size={size} />;
         },
       })}

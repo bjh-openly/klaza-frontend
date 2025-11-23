@@ -80,6 +80,7 @@ const LoungeFeed: React.FC<Props> = ({ header, contentPadding = 16, onPressItem 
 const styles = StyleSheet.create({
   listContent: {
     paddingBottom: 40,
+    backgroundColor: '#000000',
   },
   emptyState: {
     alignItems: 'center',

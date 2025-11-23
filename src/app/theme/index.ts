@@ -19,6 +19,7 @@ export const theme = {
     background: colors.background,
     surface: colors.surface,
     onSurface: colors.text,
+    text: colors.text,
   },
   fonts: fontConfig,
 };
