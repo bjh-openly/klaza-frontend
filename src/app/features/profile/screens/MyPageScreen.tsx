@@ -7,6 +7,7 @@ import MyActivityScreen from './MyActivityScreen';
 import ChargeScreen from './ChargeScreen';
 import { useAppDispatch } from '../../../store/hooks';
 import { signOut } from '../../auth/slice';
+import { clearStoredAccessToken } from '../../../services/session';
 
 const MyPageScreen = () => {
   const [tab, setTab] = useState<'info' | 'points' | 'activity' | 'charge'>('info');
@@ -42,7 +43,14 @@ const MyPageScreen = () => {
         ]}
       />
       <View style={styles.content}>{renderContent()}</View>
-      <Button mode="outlined" onPress={() => dispatch(signOut())} style={styles.signOut}>
+      <Button
+        mode="outlined"
+        onPress={async () => {
+          await clearStoredAccessToken();
+          dispatch(signOut());
+        }}
+        style={styles.signOut}
+      >
         Sign Out
       </Button>
     </ScrollView>
