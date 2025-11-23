@@ -4,13 +4,21 @@ This repository contains the rebuilt Klaza mobile frontend using the Expo-manage
 
 ## Getting started
 
-1. Install dependencies:
+1. Ensure you are using **Node.js 20.19.4+** (React Native 0.82 requires it). If you use `nvm`, run:
+
+   ```bash
+   nvm use
+   ```
+
+   Otherwise install Node 20 manually from <https://nodejs.org/en>.
+
+2. Install dependencies:
 
    ```bash
    npm install
    ```
 
-2. Start the development server:
+3. Start the development server:
 
    ```bash
    npm start
@@ -18,7 +26,7 @@ This repository contains the rebuilt Klaza mobile frontend using the Expo-manage
 
    Use the Expo Go app on a device or an emulator to open the project. The Metro bundler will provide a QR code and platform-specific options.
 
-3. Run tests:
+4. Run tests:
 
    ```bash
    npm test
