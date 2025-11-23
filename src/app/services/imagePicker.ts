@@ -1,9 +1,15 @@
-import { launchImageLibrary, ImageLibraryOptions, Asset } from 'react-native-image-picker';
+import { Alert } from 'react-native';
 
-export const pickImage = async (options?: ImageLibraryOptions): Promise<Asset | undefined> => {
-  const result = await launchImageLibrary({ mediaType: 'photo', ...options });
-  if (result.assets && result.assets.length > 0) {
-    return result.assets[0];
-  }
+export type PickedImage = {
+  uri?: string;
+  fileName?: string;
+  type?: string;
+};
+
+export const pickImage = async (): Promise<PickedImage | undefined> => {
+  Alert.alert(
+    'Upload coming soon',
+    'Image selection is not available in this build. Please try again once media upload support is enabled.',
+  );
   return undefined;
 };
