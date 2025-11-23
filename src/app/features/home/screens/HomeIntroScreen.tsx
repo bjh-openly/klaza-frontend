@@ -8,6 +8,7 @@ import { ROUTES, TABS } from '../../../config/constants';
 import { useAppSelector } from '../../../store/hooks';
 import { KlazaSearchItem } from '../../../services/klazaApi';
 
+
 const HomeIntroScreen = () => {
   const navigation = useNavigation();
   const { accessToken } = useAppSelector((state) => state.auth);
@@ -15,6 +16,7 @@ const HomeIntroScreen = () => {
   const rootNav = navigation.getParent()?.getParent();
 
   const goProfile = () => {
+
     if (accessToken) {
       rootNav?.navigate(ROUTES.MY_PAGE as never) || navigation.navigate(ROUTES.MY_PAGE as never);
     } else {

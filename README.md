@@ -4,7 +4,7 @@ This repository contains the rebuilt Klaza mobile frontend using the Expo-manage
 
 ## Getting started
 
-1. Ensure you are using **Node.js 20.19.4+** (React Native 0.82 requires it). If you use `nvm`, run:
+1. Ensure you are using **Node.js 20.19.4+** (React Native 0.82 enforces this and yarn will fail to install packages on older versions). If you use `nvm`, run:
 
    ```bash
    nvm use
