@@ -5,6 +5,12 @@ export type RootStackParamList = {
   [ROUTES.SPLASH]: undefined;
   [ROUTES.AUTH]: NavigatorScreenParams<AuthStackParamList> | undefined;
   [ROUTES.MAIN]: NavigatorScreenParams<MainTabParamList> | undefined;
+  [ROUTES.ONBOARDING]: NavigatorScreenParams<OnboardingStackParamList> | undefined;
+};
+
+export type OnboardingStackParamList = {
+  [ROUTES.ONBOARDING_WELCOME]: undefined;
+  [ROUTES.ONBOARDING_NEXT]: undefined;
 };
 
 export type AuthStackParamList = {
