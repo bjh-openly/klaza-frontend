@@ -17,9 +17,17 @@ const authSlice = createSlice({
       state.isLoading = true;
       state.error = null;
     },
+    finishLoading(state) {
+      state.isLoading = false;
+    },
     signInSuccess(state, action: PayloadAction<{ accessToken: string; actor: Actor }>) {
       state.accessToken = action.payload.accessToken;
       state.actor = action.payload.actor;
+      state.isLoading = false;
+    },
+    restoreSession(state, action: PayloadAction<{ accessToken: string; actor?: Actor | null }>) {
+      state.accessToken = action.payload.accessToken;
+      state.actor = action.payload.actor ?? state.actor;
       state.isLoading = false;
     },
     setError(state, action: PayloadAction<string | null>) {
@@ -39,5 +47,5 @@ const authSlice = createSlice({
   },
 });
 
-export const { signInSuccess, signOut, updateActor, startLoading, setError } = authSlice.actions;
+export const { signInSuccess, signOut, updateActor, startLoading, finishLoading, setError, restoreSession } = authSlice.actions;
 export default authSlice.reducer;
