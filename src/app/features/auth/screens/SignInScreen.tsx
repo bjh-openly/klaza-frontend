@@ -6,7 +6,8 @@ import AuthTextInput from '../components/AuthTextInput';
 import { AuthStackParamList } from '../../../navigation/types';
 import { ROUTES } from '../../../config/constants';
 import { useAppDispatch } from '../../../store/hooks';
-import { signInSuccess, startLoading } from '../slice';
+import { signInSuccess, startLoading, finishLoading } from '../slice';
+import { setStoredAccessToken } from '../../../services/session';
 
 const SignInScreen: React.FC<NativeStackScreenProps<AuthStackParamList, typeof ROUTES.SIGN_IN>> = ({
   navigation,
@@ -17,15 +18,18 @@ const SignInScreen: React.FC<NativeStackScreenProps<AuthStackParamList, typeof R
   const [remember, setRemember] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const handleSignIn = () => {
+  const handleSignIn = async () => {
     if (!username || !password) {
       setError('Please fill in both fields.');
       return;
     }
     dispatch(startLoading());
-    dispatch(
-      signInSuccess({ accessToken: 'demo-token', actor: { id: '1', username, email: `${username}@mail.com` } }),
-    );
+    // TODO: replace with real /auth/login API call
+    const demoToken = 'demo-token';
+    await setStoredAccessToken(demoToken);
+    dispatch(signInSuccess({ accessToken: demoToken, actor: { id: '1', username, email: `${username}@mail.com` } }));
+    dispatch(finishLoading());
+    navigation.getParent()?.reset({ index: 0, routes: [{ name: ROUTES.MAIN as never }] });
   };
 
   return (
