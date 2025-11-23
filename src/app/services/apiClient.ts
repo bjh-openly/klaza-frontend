@@ -2,6 +2,7 @@ import axios, { AxiosError, AxiosRequestConfig } from 'axios';
 import { API_BASE_URL } from '../config/env';
 import { BaseQueryFn } from '@reduxjs/toolkit/query';
 import type { SerializedError } from '@reduxjs/toolkit';
+import { getStoredAccessToken } from './session';
 
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
@@ -9,7 +10,13 @@ const apiClient = axios.create({
 });
 
 apiClient.interceptors.request.use(async (config) => {
-  // attach token placeholder
+  const token = await getStoredAccessToken();
+  if (token) {
+    config.headers = {
+      ...(config.headers || {}),
+      Authorization: `Bearer ${token}`,
+    };
+  }
   return config;
 });
 
