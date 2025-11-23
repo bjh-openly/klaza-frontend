@@ -23,4 +23,4 @@ export const theme = {
   fonts: fontConfig,
 };
 
-export const IconComponent = (props: any) => <MaterialCommunityIcons {...props} />;
+export const IconComponent = (props: any) => React.createElement(MaterialCommunityIcons, props);

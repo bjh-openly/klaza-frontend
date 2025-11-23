@@ -5,7 +5,6 @@ npm install @react-navigation/native @react-navigation/native-stack @react-navig
 Development dependencies:
 npm install -D typescript @types/react @types/react-native @types/react-redux @types/react-native-vector-icons
 */
-import 'react-native-gesture-handler';
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { Provider } from 'react-redux';
