@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
-import { Button, SegmentedButtons, Text } from 'react-native-paper';
+import { Button, Dialog, Portal, SegmentedButtons, Text } from 'react-native-paper';
 import MyInfoScreen from './MyInfoScreen';
 import MyPointsScreen from './MyPointsScreen';
 import MyActivityScreen from './MyActivityScreen';
@@ -11,8 +11,10 @@ import { clearStoredAccessToken } from '../../../services/session';
 
 const MyPageScreen = () => {
   const [tab, setTab] = useState<'info' | 'points' | 'activity' | 'charge'>('info');
+  const [showConfirm, setShowConfirm] = useState(false);
   const dispatch = useAppDispatch();
-  const renderContent = () => {
+
+  const renderContent = useMemo(() => {
     switch (tab) {
       case 'info':
         return <MyInfoScreen />;
@@ -25,12 +27,25 @@ const MyPageScreen = () => {
       default:
         return null;
     }
+  }, [tab]);
+
+  const tabLabel = {
+    info: 'MY INFO',
+    points: 'MY POINTS',
+    activity: 'MY ACTIVITY',
+    charge: 'CHARGE',
+  }[tab];
+
+  const handleSignOut = async () => {
+    await clearStoredAccessToken();
+    dispatch(signOut());
+    setShowConfirm(false);
   };
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <Text variant="headlineSmall" style={styles.title}>
-        My Page
+      <Text variant="headlineMedium" style={styles.title}>
+        {tabLabel}
       </Text>
       <SegmentedButtons
         value={tab}
@@ -42,17 +57,20 @@ const MyPageScreen = () => {
           { value: 'charge', label: 'CHARGE' },
         ]}
       />
-      <View style={styles.content}>{renderContent()}</View>
-      <Button
-        mode="outlined"
-        onPress={async () => {
-          await clearStoredAccessToken();
-          dispatch(signOut());
-        }}
-        style={styles.signOut}
-      >
+      <View style={styles.content}>{renderContent}</View>
+      <Button mode="outlined" onPress={() => setShowConfirm(true)} style={styles.signOut}>
         Sign Out
       </Button>
+
+      <Portal>
+        <Dialog visible={showConfirm} onDismiss={() => setShowConfirm(false)}>
+          <Dialog.Title>Are you sure you want to leave?</Dialog.Title>
+          <Dialog.Actions>
+            <Button onPress={() => setShowConfirm(false)}>No, still more to do.</Button>
+            <Button onPress={handleSignOut}>Yes, for now.</Button>
+          </Dialog.Actions>
+        </Dialog>
+      </Portal>
     </ScrollView>
   );
 };

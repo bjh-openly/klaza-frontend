@@ -15,14 +15,14 @@ const LoungeItemCard: React.FC<Props> = ({ item, accentIndex = 0, onPress }) => 
   const accent = accentColors[accentIndex % accentColors.length];
   const snippet = item.contentSnippet.replace(/\{\{slot:[^}]+\}\}/g, '').trim();
   const author = item.authorLogins?.[0] ?? 'KLAZA Editor';
+  const typeLabel = author.toLowerCase().includes('buzz') ? 'KLAZA made' : 'Fanmade';
 
   return (
     <Card style={styles.card} onPress={onPress}>
-      <Card.Cover source={{ uri: `https://picsum.photos/800/400?sig=${item.contentId}` }} style={styles.cover} />
       <Card.Content style={styles.content}>
         <View style={styles.row}>
           <Chip style={[styles.chip, { backgroundColor: `${accent}22` }]} textStyle={{ color: accent }}>
-            Post
+            {typeLabel}
           </Chip>
           <Text style={styles.meta}>{author}</Text>
         </View>
@@ -42,11 +42,7 @@ const styles = StyleSheet.create({
   card: {
     marginBottom: 16,
     overflow: 'hidden',
-    borderRadius: 20,
-    marginHorizontal: 16,
-  },
-  cover: {
-    height: 180,
+    borderRadius: 16,
   },
   content: {
     paddingTop: 12,

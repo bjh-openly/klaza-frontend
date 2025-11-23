@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ScrollView, StyleSheet } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import { Button, HelperText, Text } from 'react-native-paper';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import AuthTextInput from '../components/AuthTextInput';
@@ -11,15 +11,26 @@ const SignUpPasswordScreen: React.FC<NativeStackScreenProps<AuthStackParamList, 
 }) => {
   const [password, setPassword] = useState('');
   const isValid = password.length >= 10;
+
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <Text variant="headlineSmall">Create a password</Text>
+      <Text variant="headlineSmall" style={styles.title}>
+        Password
+      </Text>
+      <Text style={styles.subtitle}>Combine at least 10 characters of letters, numbers and symbols</Text>
       <AuthTextInput label="Password" secureTextEntry value={password} onChangeText={setPassword} />
-      <HelperText type={isValid ? 'info' : 'error'}>
-        Combine at least 10 characters of letters, numbers and symbols.
-      </HelperText>
-      <Button mode="contained" disabled={!isValid} onPress={() => navigation.navigate(ROUTES.SIGN_UP_EMAIL)}>
-        Next
+      <View style={styles.helperRow}>
+        <HelperText type={isValid ? 'info' : 'error'} visible={!isValid}>
+          Password must be at least 10 characters.
+        </HelperText>
+      </View>
+      <Button
+        mode="contained"
+        disabled={!isValid}
+        onPress={() => navigation.navigate(ROUTES.SIGN_UP_EMAIL)}
+        style={styles.button}
+      >
+        Submit
       </Button>
     </ScrollView>
   );
@@ -28,6 +39,19 @@ const SignUpPasswordScreen: React.FC<NativeStackScreenProps<AuthStackParamList, 
 const styles = StyleSheet.create({
   container: {
     padding: 16,
+  },
+  title: {
+    marginBottom: 4,
+  },
+  subtitle: {
+    marginBottom: 12,
+    color: '#6b7280',
+  },
+  helperRow: {
+    marginVertical: 4,
+  },
+  button: {
+    marginTop: 8,
   },
 });
 

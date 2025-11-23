@@ -1,13 +1,16 @@
 import React, { useState } from 'react';
-import { ScrollView, StyleSheet, View, Image } from 'react-native';
-import { Button, RadioButton, Text, TextInput } from 'react-native-paper';
+import { Image, ScrollView, StyleSheet, View } from 'react-native';
+import { Button, RadioButton, SegmentedButtons, Text, TextInput } from 'react-native-paper';
 import { pickImage } from '../../../services/imagePicker';
+
+const clans = ['SCI-FY', 'Creatures Everywhere', 'The Rom-commers'];
 
 const ClanPostCreateScreen = () => {
   const [mode, setMode] = useState<'photo' | 'photoText' | 'text'>('photoText');
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [photoUri, setPhotoUri] = useState<string | undefined>();
+  const [category, setCategory] = useState(clans[0]);
 
   const handlePick = async () => {
     const asset = await pickImage();
@@ -16,48 +19,65 @@ const ClanPostCreateScreen = () => {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <Text variant="headlineSmall">New Clan Post</Text>
-      <TextInput mode="outlined" label="Title" value={title} onChangeText={setTitle} style={styles.input} />
+      <Text variant="headlineSmall" style={styles.title}>
+        New Post
+      </Text>
+      <TextInput
+        mode="outlined"
+        label="Title"
+        placeholder="Insert title..."
+        value={title}
+        onChangeText={setTitle}
+        style={styles.input}
+      />
+      <TextInput
+        mode="outlined"
+        label="Insert text..."
+        placeholder="Insert text..."
+        value={content}
+        onChangeText={setContent}
+        multiline
+        style={styles.input}
+      />
 
-      <RadioButton.Group onValueChange={(value) => setMode(value as any)} value={mode}>
-        <RadioButton.Item label="Photo only" value="photo" />
-        <RadioButton.Item label="Photo + text" value="photoText" />
-        <RadioButton.Item label="Text only" value="text" />
+      <Text style={styles.label}>Category</Text>
+      <RadioButton.Group onValueChange={(value) => setCategory(value)} value={category}>
+        {clans.map((clan) => (
+          <RadioButton.Item key={clan} label={clan} value={clan} />
+        ))}
       </RadioButton.Group>
 
-      {(mode === 'photo' || mode === 'photoText') && (
-        <View style={styles.media}>
-          <Button mode="contained" onPress={handlePick}>
-            Upload photo
-          </Button>
-          {photoUri && <Image source={{ uri: photoUri }} style={styles.image} />}
-        </View>
-      )}
-
-      {(mode === 'photoText' || mode === 'text') && (
-        <TextInput
-          mode="outlined"
-          label="Content"
-          multiline
-          value={content}
-          onChangeText={setContent}
-          style={styles.input}
-        />
-      )}
-
-      <Button mode="contained" style={styles.button}>
-        Save draft
+      <Button mode="outlined" onPress={handlePick} style={styles.button}>
+        Upload a main picture
       </Button>
+      {photoUri && <Image source={{ uri: photoUri }} style={styles.image} />}
+
+      <Text style={styles.label}>Mode</Text>
+      <SegmentedButtons
+        value={mode}
+        onValueChange={(value) => setMode(value as typeof mode)}
+        buttons={[
+          { value: 'photo', label: 'photo only' },
+          { value: 'photoText', label: 'photo+text' },
+          { value: 'text', label: 'text only' },
+        ]}
+        style={styles.segmented}
+      />
+
+      <Button mode="contained" style={styles.submit}>Post</Button>
     </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { padding: 16 },
-  input: { marginVertical: 8 },
-  media: { marginVertical: 8 },
-  image: { height: 160, marginTop: 8, borderRadius: 8 },
-  button: { marginTop: 12 },
+  container: { padding: 16, gap: 8 },
+  title: { marginBottom: 8 },
+  input: { marginBottom: 8 },
+  label: { marginTop: 8, marginBottom: 4, color: '#6b7280' },
+  button: { marginVertical: 8 },
+  image: { height: 180, borderRadius: 12, marginBottom: 8 },
+  segmented: { marginVertical: 8 },
+  submit: { marginTop: 8 },
 });
 
 export default ClanPostCreateScreen;

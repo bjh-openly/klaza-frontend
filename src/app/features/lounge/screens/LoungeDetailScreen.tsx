@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
-import { ImageBackground, ScrollView, StyleSheet, View } from 'react-native';
-import { Chip, Text, useTheme } from 'react-native-paper';
+import { ScrollView, StyleSheet, View } from 'react-native';
+import { Chip, Divider, Text } from 'react-native-paper';
 import { RouteProp, useRoute } from '@react-navigation/native';
 import { LoungeStackParamList } from '../../../navigation/types';
 import { ROUTES } from '../../../config/constants';
@@ -8,53 +8,39 @@ import AppSafeArea from '../../../components/layout/AppSafeArea';
 import { useAppSelector } from '../../../store/hooks';
 import { selectLoungeByContentId } from '../store/loungeSlice';
 
-const accentColors = ['#0ea5e9', '#a855f7', '#f97316', '#22c55e'];
-
 const LoungeDetailScreen = () => {
   const route = useRoute<RouteProp<LoungeStackParamList, typeof ROUTES.LOUNGE_DETAIL>>();
-  const theme = useTheme();
   const { item: paramItem } = route.params;
   const cachedItem = useAppSelector(selectLoungeByContentId(paramItem.contentId, paramItem.klazaId));
   const item = cachedItem ?? paramItem;
 
-  const accent = useMemo(
-    () => accentColors[(item.contentId + item.klazaId) % accentColors.length],
-    [item.contentId, item.klazaId],
-  );
   const snippet = item.contentSnippet.replace(/\{\{slot:[^}]+\}\}/g, '').trim();
-  const author = item.authorLogins?.[0] ?? 'KLAZA Editor';
+  const author = item.authorLogins?.[0] ?? 'KLAZA Editor Judy';
+  const isKlazaMade = author.toLowerCase().includes('buzz');
+
+  const label = useMemo(() => (isKlazaMade ? 'KLAZA made' : 'Fanmade'), [isKlazaMade]);
 
   return (
     <AppSafeArea>
-      <ScrollView contentContainerStyle={styles.container} showsVerticalScrollIndicator={false}>
-        <ImageBackground
-          source={{ uri: `https://picsum.photos/1200/800?sig=${item.contentId}` }}
-          style={styles.hero}
-          imageStyle={styles.heroImage}
-        >
-          <View style={styles.heroOverlay}>
-            <Chip style={[styles.chip, { backgroundColor: `${accent}22` }]} textStyle={{ color: accent }}>
-              Post
-            </Chip>
-            <Text variant="headlineSmall" style={styles.heroTitle} numberOfLines={3}>
-              {item.title}
-            </Text>
-            <View style={styles.metaRow}>
-              <Text style={styles.metaLabel}>{author}</Text>
-              <Text style={styles.metaLabel}>{new Date(item.publishAt).toLocaleDateString()}</Text>
-            </View>
-          </View>
-        </ImageBackground>
-        <View style={styles.body}>
-          <Text variant="titleMedium" style={styles.sectionTitle}>
-            Summary
+      <ScrollView contentContainerStyle={styles.container}>
+        <View style={styles.hero}>
+          <Chip style={styles.chip}>{label}</Chip>
+          <Text style={styles.meta}>
+            {isKlazaMade ? 'Brought to you by: KLAZA Editor Judy' : 'Fanmade'}
           </Text>
-          <Text variant="bodyLarge" style={styles.copy}>
-            {snippet || '콘텐츠 요약이 준비되고 있습니다.'}
+          <Text variant="headlineMedium" style={styles.title}>
+            {item.title}
           </Text>
-          <Text variant="bodyMedium" style={[styles.copy, { color: theme.colors.onSurfaceVariant }]}>
-            "Share the Story"에서 추천하는 최신 KLAZA 글입니다.
-          </Text>
+        </View>
+
+        <Text style={styles.body}>{snippet || 'Content is being prepared.'}</Text>
+        <Text style={styles.body}>"Share the Story"에서 추천하는 최신 KLAZA 글입니다.</Text>
+
+        <Divider style={styles.divider} />
+        <View style={styles.comments}>
+          <Text variant="titleMedium">Comments</Text>
+          <Text style={styles.comment}>User123: Love this take!</Text>
+          <Text style={styles.comment}>Another fan: Can’t wait for more.</Text>
         </View>
       </ScrollView>
     </AppSafeArea>
@@ -63,45 +49,33 @@ const LoungeDetailScreen = () => {
 
 const styles = StyleSheet.create({
   container: {
-    paddingBottom: 32,
+    padding: 16,
+    gap: 12,
   },
   hero: {
-    height: 340,
-    justifyContent: 'flex-end',
-  },
-  heroImage: {
-    resizeMode: 'cover',
-  },
-  heroOverlay: {
-    padding: 20,
-    backgroundColor: 'rgba(0,0,0,0.45)',
-  },
-  heroTitle: {
-    color: '#fff',
-    marginTop: 12,
-  },
-  metaRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 8,
-  },
-  metaLabel: {
-    color: '#e5e7eb',
-  },
-  body: {
-    paddingHorizontal: 20,
-    paddingTop: 20,
-  },
-  sectionTitle: {
-    fontWeight: '700',
-    marginBottom: 8,
-  },
-  copy: {
-    lineHeight: 22,
-    color: '#1f2937',
+    gap: 6,
   },
   chip: {
     alignSelf: 'flex-start',
+  },
+  meta: {
+    color: '#6b7280',
+  },
+  title: {
+    fontWeight: '700',
+  },
+  body: {
+    lineHeight: 22,
+    color: '#1f2937',
+  },
+  divider: {
+    marginVertical: 8,
+  },
+  comments: {
+    gap: 6,
+  },
+  comment: {
+    color: '#4b5563',
   },
 });
 

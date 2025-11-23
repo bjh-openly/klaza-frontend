@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ScrollView, StyleSheet } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import { Button, HelperText, Text } from 'react-native-paper';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import AuthTextInput from '../components/AuthTextInput';
@@ -8,13 +8,33 @@ import { ROUTES } from '../../../config/constants';
 
 const SignUpIdScreen: React.FC<NativeStackScreenProps<AuthStackParamList, typeof ROUTES.SIGN_UP_ID>> = ({ navigation }) => {
   const [userId, setUserId] = useState('');
+  const [checked, setChecked] = useState(false);
+  const [isTaken, setIsTaken] = useState(false);
   const isValid = userId.length >= 4;
+
+  const checkDuplicates = () => {
+    setChecked(true);
+    setIsTaken(userId.toLowerCase() === 'taken');
+  };
+
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <Text variant="headlineSmall">Choose your ID</Text>
-      <AuthTextInput label="User ID" value={userId} onChangeText={setUserId} autoCapitalize="none" />
-      {!isValid && <HelperText type="error">Use at least 4 characters.</HelperText>}
-      <Button mode="contained" disabled={!isValid} onPress={() => navigation.navigate(ROUTES.SIGN_UP_PASSWORD)}>
+      <Text variant="headlineSmall" style={styles.title}>
+        ID
+      </Text>
+      <Text style={styles.subtitle}>Insert a nickname that you'll use on KLAZA.</Text>
+      <AuthTextInput label="ID" value={userId} onChangeText={setUserId} autoCapitalize="none" />
+      <View style={styles.actions}>
+        <Button mode="outlined" onPress={checkDuplicates} disabled={!isValid}>
+          Check duplicates
+        </Button>
+      </View>
+      {checked && isTaken && <HelperText type="error">Someone already uses it.</HelperText>}
+      <Button
+        mode="contained"
+        disabled={!isValid || (checked && isTaken)}
+        onPress={() => navigation.navigate(ROUTES.SIGN_UP_PASSWORD)}
+      >
         Next
       </Button>
     </ScrollView>
@@ -24,6 +44,16 @@ const SignUpIdScreen: React.FC<NativeStackScreenProps<AuthStackParamList, typeof
 const styles = StyleSheet.create({
   container: {
     padding: 16,
+  },
+  title: {
+    marginBottom: 4,
+  },
+  subtitle: {
+    marginBottom: 12,
+    color: '#6b7280',
+  },
+  actions: {
+    marginVertical: 8,
   },
 });
 

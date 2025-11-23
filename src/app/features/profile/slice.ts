@@ -8,8 +8,9 @@ const initialState: ProfileState = {
     { id: 'ph2', date: '2024-05-28', description: 'Raffle entry', delta: -2 },
   ],
   preferences: [
-    { id: 'pref1', label: 'Drama' },
-    { id: 'pref2', label: 'Fantasy' },
+    { id: 'pref1', label: 'drama' },
+    { id: 'pref2', label: 'fantasy' },
+    { id: 'pref3', label: 'life' },
   ],
   notifications: {
     push: true,
@@ -21,8 +22,8 @@ const profileSlice = createSlice({
   name: 'profile',
   initialState,
   reducers: {
-    toggleNotification(state, action: PayloadAction<'push' | 'sns'>) {
-      const key = action.payload;
+    toggleNotification(state, action: PayloadAction<{ key: 'push' | 'sns' }>) {
+      const key = action.payload.key;
       state.notifications[key] = !state.notifications[key];
     },
     addPreference(state, action: PayloadAction<Preference>) {

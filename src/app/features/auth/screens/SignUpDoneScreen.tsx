@@ -5,15 +5,20 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { AuthStackParamList } from '../../../navigation/types';
 import { ROUTES } from '../../../config/constants';
 
-const SignUpDoneScreen: React.FC<NativeStackScreenProps<AuthStackParamList, typeof ROUTES.SIGN_UP_DONE>> = ({ navigation }) => {
+const SignUpDoneScreen: React.FC<NativeStackScreenProps<AuthStackParamList, typeof ROUTES.SIGN_UP_DONE>> = ({
+  navigation,
+}) => {
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <Text variant="headlineMedium" style={styles.title}>
-        Yay! Now you’re one of us!
+        Yay! Now you're one of us!
       </Text>
       <Text style={styles.subtitle}>Welcome to KLAZA Hub. Jump right into discovery.</Text>
-      <Button mode="contained" onPress={() => navigation.navigate(ROUTES.SIGN_IN)}>
-        Go to Home
+      <Button
+        mode="contained"
+        onPress={() => navigation.reset({ index: 0, routes: [{ name: ROUTES.MAIN as never }] })}
+      >
+        Start >>
       </Button>
     </ScrollView>
   );

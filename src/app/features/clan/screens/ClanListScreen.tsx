@@ -1,27 +1,36 @@
 import React from 'react';
-import { ScrollView, StyleSheet } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import { Card, Chip, Text } from 'react-native-paper';
 import { useGetClansQuery } from '../../../services/clanApi';
 import SectionHeader from '../../../components/common/SectionHeader';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { ClanStackParamList } from '../../../navigation/types';
+import { ROUTES } from '../../../config/constants';
 
 const ClanListScreen = () => {
   const { data = [] } = useGetClansQuery();
+  const navigation = useNavigation<NativeStackNavigationProp<ClanStackParamList>>();
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <SectionHeader title="CLAN" />
       {data.map((clan) => (
-        <Card key={clan.id} style={styles.card}>
+        <Card
+          key={clan.id}
+          style={styles.card}
+          onPress={() => navigation.navigate(ROUTES.CLAN_DETAIL, { clanId: clan.id })}
+        >
           <Card.Title title={clan.name} subtitle={clan.description} />
           <Card.Content>
-            <Text>{clan.latestBuzz}</Text>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.tags}>
+            <View style={styles.tags}>
               {clan.tags.map((tag) => (
                 <Chip key={tag} style={styles.chip}>
                   {tag}
                 </Chip>
               ))}
-            </ScrollView>
+            </View>
+            <Text style={styles.meta}>buzzing {clan.latestBuzz}</Text>
           </Card.Content>
         </Card>
       ))}
@@ -37,10 +46,16 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   tags: {
-    marginTop: 8,
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    marginBottom: 8,
+    gap: 6,
   },
   chip: {
     marginRight: 6,
+  },
+  meta: {
+    color: '#6b7280',
   },
 });
 
