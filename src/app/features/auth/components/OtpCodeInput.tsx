@@ -1,7 +1,6 @@
-import React from 'react';
-import { StyleSheet, View } from 'react-native';
+import React, { useCallback, useRef } from 'react';
+import { StyleSheet, TextInput, View } from 'react-native';
 import { Text } from 'react-native-paper';
-import { CodeField, Cursor, useBlurOnFulfill, useClearByFocusCell } from 'react-native-confirmation-code-field';
 
 interface Props {
   value: string;
@@ -11,25 +10,39 @@ interface Props {
 const CELL_COUNT = 6;
 
 const OtpCodeInput: React.FC<Props> = ({ value, setValue }) => {
-  const ref = useBlurOnFulfill({ value, cellCount: CELL_COUNT });
-  const [props, getCellOnLayoutHandler] = useClearByFocusCell({ value, setValue });
+  const inputRef = useRef<TextInput | null>(null);
+
+  const handleChange = useCallback(
+    (text: string) => {
+      const sanitized = text.replace(/[^0-9]/g, '').slice(0, CELL_COUNT);
+      setValue(sanitized);
+    },
+    [setValue],
+  );
 
   return (
     <View style={styles.container}>
-      <CodeField
-        ref={ref}
-        {...props}
+      <TextInput
+        ref={inputRef}
         value={value}
-        onChangeText={setValue}
-        cellCount={CELL_COUNT}
-        rootStyle={styles.codeFieldRoot}
+        onChangeText={handleChange}
         keyboardType="number-pad"
-        renderCell={({ index, symbol, isFocused }) => (
-          <View key={index} style={[styles.cell, isFocused && styles.focusCell]} onLayout={getCellOnLayoutHandler(index)}>
-            <Text style={styles.cellText}>{symbol || (isFocused ? <Cursor /> : null)}</Text>
-          </View>
-        )}
+        maxLength={CELL_COUNT}
+        textContentType="oneTimeCode"
+        autoComplete="sms-otp"
+        autoFocus
+        style={styles.hiddenInput}
       />
+      <View style={styles.cellsRow}>
+        {Array.from({ length: CELL_COUNT }).map((_, index) => {
+          const symbol = value[index];
+          return (
+            <View key={index} style={[styles.cell, symbol ? styles.filledCell : null]}>
+              <Text style={styles.cellText}>{symbol ?? ' '}</Text>
+            </View>
+          );
+        })}
+      </View>
     </View>
   );
 };
@@ -38,22 +51,27 @@ const styles = StyleSheet.create({
   container: {
     marginVertical: 12,
   },
-  codeFieldRoot: {
+  hiddenInput: {
+    ...StyleSheet.absoluteFillObject,
+    opacity: 0,
+  },
+  cellsRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     marginTop: 20,
   },
   cell: {
-    width: 40,
+    flex: 1,
     height: 48,
-    lineHeight: 46,
     borderWidth: 1,
     borderColor: '#e5e7eb',
-    textAlign: 'center',
-    marginHorizontal: 4,
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: 8,
+    marginHorizontal: 4,
+    backgroundColor: '#fff',
   },
-  focusCell: {
+  filledCell: {
     borderColor: '#5A3EED',
   },
   cellText: {
