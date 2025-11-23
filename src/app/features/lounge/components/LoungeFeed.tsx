@@ -1,12 +1,10 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { ActivityIndicator, FlatList, RefreshControl, StyleSheet, View } from 'react-native';
 import { Text } from 'react-native-paper';
-import {
-  KlazaSearchItem,
-  useLazySearchKlazaQuery,
-  KlazaSearchResponse,
-} from '../../../services/klazaApi';
+import { KlazaSearchItem, useLazySearchKlazaQuery } from '../../../services/klazaApi';
 import LoungeItemCard from './LoungeItemCard';
+import { useAppDispatch, useAppSelector } from '../../../store/hooks';
+import { finishLoading, resetFeed, selectLoungeState, setPageData, startLoading } from '../store/loungeSlice';
 
 interface Props {
   header?: React.ReactElement;
@@ -15,33 +13,40 @@ interface Props {
 }
 
 const LoungeFeed: React.FC<Props> = ({ header, contentPadding = 16, onPressItem }) => {
-  const [items, setItems] = useState<KlazaSearchItem[]>([]);
-  const [page, setPage] = useState(0);
-  const [hasNext, setHasNext] = useState(true);
-  const [trigger, { isFetching } ] = useLazySearchKlazaQuery();
-
-  const appendData = useCallback((response?: KlazaSearchResponse, reset?: boolean) => {
-    if (!response) return;
-    setItems((prev) => (reset ? response.items : [...prev, ...response.items]));
-    setPage(response.page);
-    setHasNext(response.hasNext);
-  }, []);
+  const dispatch = useAppDispatch();
+  const { items, page, hasNext, isLoading } = useAppSelector(selectLoungeState);
+  const [trigger, { isFetching }] = useLazySearchKlazaQuery();
 
   const loadPage = useCallback(
     async (targetPage: number, reset = false) => {
+      dispatch(startLoading());
       const response = await trigger({ page: targetPage, size: 10 });
       if ('data' in response) {
-        appendData(response.data, reset);
+        dispatch(
+          setPageData({
+            items: response.data.items,
+            page: response.data.page,
+            hasNext: response.data.hasNext,
+            reset,
+          }),
+        );
+      } else {
+        dispatch(finishLoading());
       }
     },
-    [appendData, trigger],
+    [dispatch, trigger],
   );
 
   useEffect(() => {
-    loadPage(0, true);
-  }, [loadPage]);
+    if (items.length === 0 && !isFetching && !isLoading) {
+      loadPage(0, true);
+    }
+  }, [isFetching, isLoading, items.length, loadPage]);
 
-  const onRefresh = () => loadPage(0, true);
+  const onRefresh = () => {
+    dispatch(resetFeed());
+    loadPage(0, true);
+  };
 
   const onEndReached = () => {
     if (!isFetching && hasNext) {
@@ -59,7 +64,7 @@ const LoungeFeed: React.FC<Props> = ({ header, contentPadding = 16, onPressItem 
       ListHeaderComponent={header}
       ListEmptyComponent={() => (
         <View style={styles.emptyState}>
-          {isFetching ? <ActivityIndicator /> : <Text>No lounge stories yet.</Text>}
+          {isFetching || isLoading ? <ActivityIndicator /> : <Text>No lounge stories yet.</Text>}
         </View>
       )}
       ListFooterComponent={isFetching && items.length > 0 ? <ActivityIndicator style={styles.footer} /> : null}

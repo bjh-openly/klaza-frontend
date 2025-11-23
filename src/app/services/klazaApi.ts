@@ -30,7 +30,8 @@ const mockSearchResponse: KlazaSearchResponse = {
       contentId: 7,
       seqNbr: 1,
       title: '월간 드라마 라운드업',
-      contentSnippet: '이번 드라마 신작 리뷰와 추천 리스트를 정리했습니다.',
+      contentSnippet:
+        '이번 드라마 신작 리뷰와 추천 리스트를 정리했습니다. {{slot:thumb1}} 로 썸네일을 연결하세요.',
       publishAt: '2025-11-20T11:52:52.274',
       registeredAt: '2025-11-23T12:33:40.280956',
       authorActorIds: [1],
@@ -42,7 +43,7 @@ const mockSearchResponse: KlazaSearchResponse = {
       contentId: 6,
       seqNbr: 1,
       title: '주간 드라마 라운드업',
-      contentSnippet: '이번 주 신작 리뷰와 추천 리스트를 정리했습니다.',
+      contentSnippet: '이번 주 신작 리뷰와 추천 리스트를 정리했습니다. {{slot:thumb1}} 로 썸네일을 연결하세요.',
       publishAt: '2025-11-20T11:52:52.274',
       registeredAt: '2025-11-23T12:33:18.28881',
       authorActorIds: [1],

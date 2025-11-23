@@ -5,13 +5,17 @@ import { RouteProp, useRoute } from '@react-navigation/native';
 import { LoungeStackParamList } from '../../../navigation/types';
 import { ROUTES } from '../../../config/constants';
 import AppSafeArea from '../../../components/layout/AppSafeArea';
+import { useAppSelector } from '../../../store/hooks';
+import { selectLoungeByContentId } from '../store/loungeSlice';
 
 const accentColors = ['#0ea5e9', '#a855f7', '#f97316', '#22c55e'];
 
 const LoungeDetailScreen = () => {
   const route = useRoute<RouteProp<LoungeStackParamList, typeof ROUTES.LOUNGE_DETAIL>>();
   const theme = useTheme();
-  const { item } = route.params;
+  const { item: paramItem } = route.params;
+  const cachedItem = useAppSelector(selectLoungeByContentId(paramItem.contentId, paramItem.klazaId));
+  const item = cachedItem ?? paramItem;
 
   const accent = useMemo(
     () => accentColors[(item.contentId + item.klazaId) % accentColors.length],
