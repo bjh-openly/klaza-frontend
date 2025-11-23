@@ -11,9 +11,10 @@ import LoungeItemCard from './LoungeItemCard';
 interface Props {
   header?: React.ReactElement;
   contentPadding?: number;
+  onPressItem?: (item: KlazaSearchItem) => void;
 }
 
-const LoungeFeed: React.FC<Props> = ({ header, contentPadding = 16 }) => {
+const LoungeFeed: React.FC<Props> = ({ header, contentPadding = 16, onPressItem }) => {
   const [items, setItems] = useState<KlazaSearchItem[]>([]);
   const [page, setPage] = useState(0);
   const [hasNext, setHasNext] = useState(true);
@@ -52,7 +53,9 @@ const LoungeFeed: React.FC<Props> = ({ header, contentPadding = 16 }) => {
     <FlatList
       data={items}
       keyExtractor={(item) => `${item.contentId}-${item.klazaId}`}
-      renderItem={({ item, index }) => <LoungeItemCard item={item} accentIndex={index} />}
+      renderItem={({ item, index }) => (
+        <LoungeItemCard item={item} accentIndex={index} onPress={() => onPressItem?.(item)} />
+      )}
       ListHeaderComponent={header}
       ListEmptyComponent={() => (
         <View style={styles.emptyState}>

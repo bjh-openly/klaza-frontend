@@ -4,15 +4,19 @@ import { IconButton, Text } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
 import AppSafeArea from '../../../components/layout/AppSafeArea';
 import LoungeFeed from '../../lounge/components/LoungeFeed';
-import { ROUTES } from '../../../config/constants';
+import { ROUTES, TABS } from '../../../config/constants';
 import { useAppSelector } from '../../../store/hooks';
+import { KlazaSearchItem } from '../../../services/klazaApi';
+
 
 const HomeIntroScreen = () => {
   const navigation = useNavigation();
   const { accessToken } = useAppSelector((state) => state.auth);
+  const tabNav = navigation.getParent();
+  const rootNav = navigation.getParent()?.getParent();
 
   const goProfile = () => {
-    const rootNav = navigation.getParent()?.getParent();
+
     if (accessToken) {
       rootNav?.navigate(ROUTES.MY_PAGE as never) || navigation.navigate(ROUTES.MY_PAGE as never);
     } else {
@@ -21,10 +25,18 @@ const HomeIntroScreen = () => {
     }
   };
 
+  const openLoungeDetail = (item: KlazaSearchItem) => {
+    tabNav?.navigate(TABS.LOUNGE as never, {
+      screen: ROUTES.LOUNGE_DETAIL,
+      params: { item },
+    } as never);
+  };
+
   return (
     <AppSafeArea>
       <LoungeFeed
         contentPadding={0}
+        onPressItem={openLoungeDetail}
         header={
           <>
             <ImageBackground

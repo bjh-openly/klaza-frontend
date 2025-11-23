@@ -20,6 +20,7 @@ export const ROUTES = {
   SIGN_UP_DONE: 'SignUpDone',
   HOME_INTRO: 'HomeIntro',
   LOUNGE: 'LoungeList',
+  LOUNGE_DETAIL: 'LoungeDetail',
   CLAN: 'ClanList',
   EVENTS: 'EventsHome',
   MY_PAGE: 'MyPage',

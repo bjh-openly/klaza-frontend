@@ -34,13 +34,14 @@ export type HomeStackParamList = {
 
 export type MainTabParamList = {
   [TABS.HOME]: NavigatorScreenParams<HomeStackParamList> | undefined;
-  [TABS.LOUNGE]: undefined;
+  [TABS.LOUNGE]: NavigatorScreenParams<LoungeStackParamList> | undefined;
   [TABS.EVENTS]: undefined;
   [TABS.CLAN]: undefined;
 };
 
 export type LoungeStackParamList = {
   [ROUTES.LOUNGE]: undefined;
+  [ROUTES.LOUNGE_DETAIL]: { item: import('../services/klazaApi').KlazaSearchItem };
 };
 
 export type ClanStackParamList = {
