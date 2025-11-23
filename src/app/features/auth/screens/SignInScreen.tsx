@@ -9,6 +9,7 @@ import { useAppDispatch, useAppSelector } from '../../../store/hooks';
 import { signInSuccess, startLoading, finishLoading } from '../slice';
 import { setStoredAccessToken } from '../../../services/session';
 import AppSafeArea from '../../../components/layout/AppSafeArea';
+import ModalCloseHeader from '../../../components/layout/ModalCloseHeader';
 
 const SignInScreen: React.FC<NativeStackScreenProps<AuthStackParamList, typeof ROUTES.SIGN_IN>> = ({
   navigation,
@@ -42,9 +43,12 @@ const SignInScreen: React.FC<NativeStackScreenProps<AuthStackParamList, typeof R
 
   return (
     <AppSafeArea>
+      <ModalCloseHeader onCloseToRoot />
       <ScrollView contentContainerStyle={styles.container}>
         <View style={styles.header}>
-          <Text variant="headlineLarge">Share the StoryTM</Text>
+          <Text variant="headlineLarge" style={styles.title}>
+            Share the StoryTM
+          </Text>
           <Text style={styles.subtitle}>Welcome back to KLAZA Hub.</Text>
         </View>
 
@@ -68,8 +72,8 @@ const SignInScreen: React.FC<NativeStackScreenProps<AuthStackParamList, typeof R
         {passwordError && <HelperText type="error">Oops wrong password! Try again.</HelperText>}
 
         <View style={styles.row}>
-          <Checkbox status={stayLoggedIn ? 'checked' : 'unchecked'} onPress={() => setStayLoggedIn(!stayLoggedIn)} />
-          <Text>Stay logged in</Text>
+          <Checkbox status={stayLoggedIn ? 'checked' : 'unchecked'} onPress={() => setStayLoggedIn(!stayLoggedIn)} color="#1D4ED8" />
+          <Text style={styles.subtitle}>Stay logged in</Text>
         </View>
 
         {error && <HelperText type="error">{error}</HelperText>}
@@ -79,20 +83,24 @@ const SignInScreen: React.FC<NativeStackScreenProps<AuthStackParamList, typeof R
         </Button>
 
         <View style={styles.terms}>
-          <Text variant="bodySmall">By tapping "Sign in", you agree to our Terms.</Text>
-          <Text variant="bodySmall">Learn how we process your data in our Privacy Policy and Cookies Policy.</Text>
+          <Text variant="bodySmall" style={styles.mutedText}>
+            By tapping "Sign in", you agree to our Terms.
+          </Text>
+          <Text variant="bodySmall" style={styles.mutedText}>
+            Learn how we process your data in our Privacy Policy and Cookies Policy.
+          </Text>
         </View>
 
         <View style={styles.linksRow}>
-          <Button mode="text" onPress={() => navigation.navigate(ROUTES.FORGOT_ID)}>
+          <Button mode="text" textColor="#F9FAFB" onPress={() => navigation.navigate(ROUTES.FORGOT_ID)}>
             Find ID/E-mail address
           </Button>
-          <Button mode="text" onPress={() => navigation.navigate(ROUTES.FORGOT_PASSWORD)}>
+          <Button mode="text" textColor="#F9FAFB" onPress={() => navigation.navigate(ROUTES.FORGOT_PASSWORD)}>
             Find password
           </Button>
         </View>
 
-        <Button mode="text" onPress={() => navigation.navigate(ROUTES.SIGN_UP_TERMS)}>
+        <Button mode="text" textColor="#F9FAFB" onPress={() => navigation.navigate(ROUTES.SIGN_UP_TERMS)}>
           Create account
         </Button>
       </ScrollView>
@@ -104,13 +112,17 @@ const styles = StyleSheet.create({
   container: {
     padding: 16,
     flexGrow: 1,
+    backgroundColor: '#000000',
   },
   header: {
     marginBottom: 24,
   },
+  title: {
+    color: '#F9FAFB',
+  },
   subtitle: {
     marginTop: 4,
-    color: '#6b7280',
+    color: '#9CA3AF',
   },
   row: {
     flexDirection: 'row',
@@ -131,6 +143,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginBottom: 8,
+  },
+  mutedText: {
+    color: '#9CA3AF',
   },
 });
 

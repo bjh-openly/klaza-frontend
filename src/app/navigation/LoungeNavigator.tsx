@@ -14,7 +14,7 @@ const LoungeNavigator = () => {
       <Stack.Screen
         name={ROUTES.LOUNGE_DETAIL}
         component={LoungeDetailScreen}
-        options={{ title: 'Lounge detail' }}
+        options={{ headerShown: false }}
       />
     </Stack.Navigator>
   );

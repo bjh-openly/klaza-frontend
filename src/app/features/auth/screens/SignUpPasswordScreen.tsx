@@ -5,6 +5,8 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import AuthTextInput from '../components/AuthTextInput';
 import { AuthStackParamList } from '../../../navigation/types';
 import { ROUTES } from '../../../config/constants';
+import AppSafeArea from '../../../components/layout/AppSafeArea';
+import ModalCloseHeader from '../../../components/layout/ModalCloseHeader';
 
 const SignUpPasswordScreen: React.FC<NativeStackScreenProps<AuthStackParamList, typeof ROUTES.SIGN_UP_PASSWORD>> = ({
   navigation,
@@ -13,39 +15,44 @@ const SignUpPasswordScreen: React.FC<NativeStackScreenProps<AuthStackParamList, 
   const isValid = password.length >= 10;
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <Text variant="headlineSmall" style={styles.title}>
-        Password
-      </Text>
-      <Text style={styles.subtitle}>Combine at least 10 characters of letters, numbers and symbols</Text>
-      <AuthTextInput label="Password" secureTextEntry value={password} onChangeText={setPassword} />
-      <View style={styles.helperRow}>
-        <HelperText type={isValid ? 'info' : 'error'} visible={!isValid}>
-          Password must be at least 10 characters.
-        </HelperText>
-      </View>
-      <Button
-        mode="contained"
-        disabled={!isValid}
-        onPress={() => navigation.navigate(ROUTES.SIGN_UP_EMAIL)}
-        style={styles.button}
-      >
-        Submit
-      </Button>
-    </ScrollView>
+    <AppSafeArea>
+      <ModalCloseHeader onCloseToRoot />
+      <ScrollView contentContainerStyle={styles.container}>
+        <Text variant="headlineSmall" style={styles.title}>
+          Password
+        </Text>
+        <Text style={styles.subtitle}>Combine at least 10 characters of letters, numbers and symbols</Text>
+        <AuthTextInput label="Password" secureTextEntry value={password} onChangeText={setPassword} />
+        <View style={styles.helperRow}>
+          <HelperText type={isValid ? 'info' : 'error'} visible={!isValid}>
+            Password must be at least 10 characters.
+          </HelperText>
+        </View>
+        <Button
+          mode="contained"
+          disabled={!isValid}
+          onPress={() => navigation.navigate(ROUTES.SIGN_UP_EMAIL)}
+          style={styles.button}
+        >
+          Submit
+        </Button>
+      </ScrollView>
+    </AppSafeArea>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     padding: 16,
+    backgroundColor: '#000000',
   },
   title: {
     marginBottom: 4,
+    color: '#F9FAFB',
   },
   subtitle: {
     marginBottom: 12,
-    color: '#6b7280',
+    color: '#9CA3AF',
   },
   helperRow: {
     marginVertical: 4,

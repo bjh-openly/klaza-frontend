@@ -12,6 +12,7 @@ const AppSafeArea: React.FC<ViewProps> = ({ children, style, ...rest }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#000000',
   },
 });
 
