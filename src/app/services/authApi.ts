@@ -3,7 +3,7 @@ import { axiosBaseQuery } from './apiClient';
 import { Actor } from '../features/auth/types';
 
 interface LoginRequest {
-  username: string;
+  email: string;
   password: string;
 }
 

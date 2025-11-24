@@ -6,39 +6,53 @@ import AuthTextInput from '../components/AuthTextInput';
 import { AuthStackParamList } from '../../../navigation/types';
 import { ROUTES } from '../../../config/constants';
 import { useAppDispatch, useAppSelector } from '../../../store/hooks';
-import { signInSuccess, startLoading, finishLoading } from '../slice';
+import { signInSuccess, startLoading, finishLoading, setError as setAuthError } from '../slice';
 import { setStoredAccessToken } from '../../../services/session';
 import AppSafeArea from '../../../components/layout/AppSafeArea';
 import ModalCloseHeader from '../../../components/layout/ModalCloseHeader';
+import { useLoginMutation } from '../../../services/authApi';
 
 const SignInScreen: React.FC<NativeStackScreenProps<AuthStackParamList, typeof ROUTES.SIGN_IN>> = ({
   navigation,
 }) => {
   const dispatch = useAppDispatch();
   const { error: authError } = useAppSelector((state) => state.auth);
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [stayLoggedIn, setStayLoggedIn] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [login] = useLoginMutation();
 
   const passwordError = useMemo(
     () => Boolean(authError && authError.toLowerCase().includes('password')),
     [authError],
   );
-  const idError = useMemo(() => Boolean(authError && authError.toLowerCase().includes('id')), [authError]);
+  const emailError = useMemo(
+    () => Boolean(authError && authError.toLowerCase().includes('email')),
+    [authError],
+  );
 
   const handleSignIn = async () => {
-    if (!username || !password) {
+    if (!email || !password) {
       setError('Please fill in both fields.');
       return;
     }
+    setError(null);
     dispatch(startLoading());
-    // TODO: replace with real /auth/login API call
-    const demoToken = 'demo-token';
-    await setStoredAccessToken(demoToken);
-    dispatch(signInSuccess({ accessToken: demoToken, actor: { id: '1', username, email: `${username}@mail.com` } }));
-    dispatch(finishLoading());
-    navigation.getParent()?.reset({ index: 0, routes: [{ name: ROUTES.MAIN as never }] });
+    dispatch(setAuthError(null));
+    try {
+      const { accessToken, actor } = await login({ email, password }).unwrap();
+      await setStoredAccessToken(accessToken);
+      dispatch(signInSuccess({ accessToken, actor }));
+      navigation.getParent()?.reset({ index: 0, routes: [{ name: ROUTES.MAIN as never }] });
+    } catch (e) {
+      const message = (e as { message?: string })?.message ||
+        'Login failed. Please check your email/password.';
+      setError(message);
+      dispatch(setAuthError(message));
+    } finally {
+      dispatch(finishLoading());
+    }
   };
 
   return (
@@ -53,13 +67,13 @@ const SignInScreen: React.FC<NativeStackScreenProps<AuthStackParamList, typeof R
         </View>
 
         <AuthTextInput
-          label="ID or E-mail address"
-          value={username}
-          onChangeText={setUsername}
+          label="E-mail address"
+          value={email}
+          onChangeText={setEmail}
           autoCapitalize="none"
-          error={idError}
+          error={emailError}
         />
-        {idError && <HelperText type="error">Oops wrong ID/address! Try again.</HelperText>}
+        {emailError && <HelperText type="error">Oops wrong email address! Try again.</HelperText>}
 
         <AuthTextInput
           label="Password"
