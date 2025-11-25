@@ -1,120 +1,478 @@
-import React, { useMemo, useState } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
-import { Button, Chip, SegmentedButtons, Text } from 'react-native-paper';
-import { useRoute, RouteProp } from '@react-navigation/native';
-import { useAppDispatch, useAppSelector } from '../../../store/hooks';
-import { addBuzzingMessage, joinClan } from '../slice';
-import BuzzingMessageList from '../components/BuzzingMessageList';
-import BuzzingInputBar from '../components/BuzzingInputBar';
+import React, { useCallback, useMemo, useState } from 'react';
+import {
+  Alert,
+  Image,
+  RefreshControl,
+  ScrollView,
+  StyleSheet,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import { Chip, Text, useTheme } from 'react-native-paper';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import { RouteProp, useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import { ClanStackParamList } from '../../../navigation/types';
 import { ROUTES } from '../../../config/constants';
+import AppSafeArea from '../../../components/layout/AppSafeArea';
+import {
+  useCreateBuzzingMutation,
+  useGetClanBuzzingQuery,
+  useGetClanDetailQuery,
+  useGetClanPostsQuery,
+  useJoinClanMutation,
+  useLeaveClanMutation,
+} from '../../../services/clanApi';
+import { useAppSelector } from '../../../store/hooks';
+import { BuzzingMessage, ClanPostSummary } from '../types';
+
+const BuzzBubble: React.FC<{ message: BuzzingMessage; isOwn?: boolean }> = ({ message, isOwn }) => (
+  <View style={[styles.bubble, isOwn ? styles.bubbleOwn : styles.bubbleOther]}>
+    <Text style={styles.bubbleAuthor}>{message.author}</Text>
+    <Text style={styles.bubbleText}>{message.message}</Text>
+    <Text style={styles.bubbleTime}>{message.createdAt}</Text>
+  </View>
+);
+
+const PostCard: React.FC<{ post: ClanPostSummary; onPress: () => void }> = ({ post, onPress }) => (
+  <TouchableOpacity style={styles.postCard} onPress={onPress} activeOpacity={0.85}>
+    {post.coverImageUrl && <Image source={{ uri: post.coverImageUrl }} style={styles.postImage} />}
+    <View style={styles.postContent}>
+      <Text style={styles.postType}>Fanmade</Text>
+      <Text style={styles.postTitle} numberOfLines={1}>
+        {post.title}
+      </Text>
+      {!!post.createdBy && <Text style={styles.postMeta}>Created by: {post.createdBy}</Text>}
+    </View>
+  </TouchableOpacity>
+);
 
 const ClanDetailScreen = () => {
+  const theme = useTheme();
+  const navigation = useNavigation<any>();
   const route = useRoute<RouteProp<ClanStackParamList, typeof ROUTES.CLAN_DETAIL>>();
-  const dispatch = useAppDispatch();
-  const { clans, currentClanId, buzzing } = useAppSelector((state) => state.clan);
-  const [tab, setTab] = useState<'buzzing' | 'news'>('buzzing');
+  const clanId = useMemo(() => route.params?.clanId as string, [route.params?.clanId]);
+  const { accessToken } = useAppSelector((state) => state.auth);
+  const isLoggedIn = !!accessToken;
 
-  const clan = useMemo(() => {
-    if (route.params?.clanId) {
-      return clans.find((c) => c.id === route.params?.clanId) ?? clans[0];
-    }
-    return clans[0];
-  }, [clans, route.params?.clanId]);
+  const { data: clan, refetch: refetchClan, isFetching: isClanLoading } = useGetClanDetailQuery(clanId!, {
+    skip: !clanId,
+  });
+  const { data: buzzing = [], refetch: refetchBuzzing, isFetching: buzzingLoading } = useGetClanBuzzingQuery(clanId!, {
+    skip: !clanId,
+  });
+  const {
+    data: postsResponse,
+    refetch: refetchPosts,
+    isFetching: isPostsLoading,
+  } = useGetClanPostsQuery(
+    { clanId: clanId!, page: 0, size: 10 },
+    {
+      skip: !clanId,
+    },
+  );
+  const [createBuzzing, { isLoading: isSendingBuzz }] = useCreateBuzzingMutation();
+  const [joinClan, { isLoading: isJoining }] = useJoinClanMutation();
+  const [leaveClan, { isLoading: isLeaving }] = useLeaveClanMutation();
+  const [message, setMessage] = useState('');
 
-  if (!clan) return null;
+  const isMember = clan?.isMember ?? false;
+  const canCreatePost = clan?.canCreatePost ?? isMember;
 
-  const messages = buzzing[clan.id] || [];
-  const isMember = currentClanId === clan.id;
-
-  const handleSend = (text: string) => {
-    dispatch(
-      addBuzzingMessage({
-        clanId: clan.id,
-        message: { id: Date.now().toString(), author: 'You', message: text, createdAt: 'now' },
-      }),
-    );
+  const promptSignIn = () => {
+    Alert.alert('Sign in required', 'Please sign in to join and buzz in this clan.', [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Sign in',
+        onPress: () => navigation.navigate(ROUTES.AUTH as never),
+      },
+    ]);
   };
 
+  const handleSendBuzzing = async () => {
+    if (!message.trim()) return;
+    if (!isLoggedIn) {
+      promptSignIn();
+      return;
+    }
+    if (!isMember) {
+      Alert.alert('Join required', 'Join the clan to start buzzing.');
+      return;
+    }
+    await createBuzzing({ clanId, message: message.trim() });
+    setMessage('');
+    refetchBuzzing();
+  };
+
+  const handleJoin = async () => {
+    if (!isLoggedIn) {
+      promptSignIn();
+      return;
+    }
+    await joinClan(clanId);
+    refetchClan();
+  };
+
+  const handleLeave = async () => {
+    await leaveClan(clanId);
+    refetchClan();
+  };
+
+  const posts = postsResponse?.items ?? [];
+
+  useFocusEffect(
+    useCallback(() => {
+      refetchPosts();
+    }, [refetchPosts]),
+  );
+
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <Text variant="headlineSmall">{clan.name}</Text>
-      <Text style={styles.subtitle}>{clan.description}</Text>
-      <View style={styles.tags}>
-        {clan.tags.map((tag) => (
-          <Chip key={tag} style={styles.chip}>
-            {tag}
-          </Chip>
-        ))}
-      </View>
-      {isMember ? (
-        <Text style={styles.member}>Welcome back, member!</Text>
-      ) : (
-        <Button mode="contained" onPress={() => dispatch(joinClan(clan.id))} style={styles.button}>
-          Join clan
-        </Button>
-      )}
-
-      <SegmentedButtons
-        value={tab}
-        onValueChange={(value) => setTab(value as 'buzzing' | 'news')}
-        buttons={[
-          { value: 'buzzing', label: 'buzzing' },
-          { value: 'news', label: 'news' },
-        ]}
-        style={styles.segmented}
-      />
-
-      {tab === 'buzzing' ? (
-        <View>
-          <BuzzingMessageList messages={messages} />
-          <BuzzingInputBar onSend={handleSend} />
+    <AppSafeArea>
+      <ScrollView
+        style={styles.scroll}
+        refreshControl={
+          <RefreshControl
+            tintColor="#fff"
+            refreshing={isClanLoading || buzzingLoading || isPostsLoading}
+            onRefresh={() => {
+              refetchClan();
+              refetchBuzzing();
+              refetchPosts();
+            }}
+          />
+        }
+        contentContainerStyle={styles.container}
+      >
+        <View style={styles.topBar}>
+          <TouchableOpacity onPress={() => navigation.goBack()} hitSlop={12}>
+            <MaterialCommunityIcons name="close" size={24} color="#fff" />
+          </TouchableOpacity>
+          <View style={styles.topBarActions}>
+            {isMember ? (
+              <TouchableOpacity onPress={handleLeave} disabled={isLeaving} style={styles.iconButton}>
+                <MaterialCommunityIcons name="door-closed" size={22} color="#fff" />
+              </TouchableOpacity>
+            ) : (
+              <TouchableOpacity onPress={handleJoin} disabled={isJoining} style={styles.iconButton}>
+                <MaterialCommunityIcons name="plus" size={22} color="#fff" />
+              </TouchableOpacity>
+            )}
+          </View>
         </View>
-      ) : (
-        <View style={styles.newsBox}>
-          <Text>From the admin: Hello Clan {clan.name}! You might be interested in this poll &gt;&gt;&gt;</Text>
-          <Text style={styles.newsBody}>{clan.latestBuzz}</Text>
+
+        {clan && (
+          <View style={styles.headerCard}>
+            <View style={styles.headerRow}>
+              <Chip style={styles.genreChip}>{clan.genre || 'SCI-FY'}</Chip>
+              <View style={styles.headerTags}>
+                {clan.tags?.slice(0, 3).map((tag) => (
+                  <Chip key={tag} style={styles.tagChip} textStyle={styles.tagChipText}>
+                    {tag}
+                  </Chip>
+                ))}
+              </View>
+            </View>
+            <View style={styles.clanTitleRow}>
+              <Text variant="headlineSmall" style={styles.clanTitle}>
+                {clan.name}
+              </Text>
+              {!!clan.memberCount && <Text style={styles.memberCount}>{clan.memberCount} members</Text>}
+            </View>
+            {!!clan.description && <Text style={styles.clanDescription}>{clan.description}</Text>}
+          </View>
+        )}
+
+        <View style={styles.buzzBox}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>buzzing</Text>
+            {!isMember && (
+              <TouchableOpacity onPress={handleJoin} style={styles.joinInline}>
+                <Text style={styles.joinInlineText}>Join clan</Text>
+              </TouchableOpacity>
+            )}
+          </View>
+          <View style={styles.buzzList}>
+            {buzzing.length === 0 && <Text style={styles.emptyText}>No buzzing yet.</Text>}
+            {buzzing.map((item) => (
+              <BuzzBubble key={item.id} message={item} />
+            ))}
+          </View>
+          <View style={[styles.buzzInput, (!isMember || !isLoggedIn) && styles.inputDisabled]}>
+            <TextInput
+              placeholder={isMember ? 'Drop a message' : 'Join this clan to buzz'}
+              placeholderTextColor="#6b7280"
+              style={styles.input}
+              value={message}
+              editable={isMember && isLoggedIn && !isSendingBuzz}
+              onChangeText={setMessage}
+            />
+            <TouchableOpacity onPress={handleSendBuzzing} disabled={!isMember || !isLoggedIn}>
+              <MaterialCommunityIcons name="send" size={20} color={theme.colors.primary} />
+            </TouchableOpacity>
+          </View>
         </View>
-      )}
-    </ScrollView>
+
+        {!!clan?.notice && (
+          <View style={styles.noticeCard}>
+            <Text style={styles.noticeTitle}>From the admin</Text>
+            <Text style={styles.noticeText}>{clan.notice}</Text>
+          </View>
+        )}
+
+        <View style={styles.actionsRow}>
+          {!isMember && (
+            <TouchableOpacity style={styles.joinCta} onPress={handleJoin}>
+              <MaterialCommunityIcons name="account-plus" size={18} color="#fff" />
+              <Text style={styles.joinCtaText}>Join clan</Text>
+            </TouchableOpacity>
+          )}
+          <TouchableOpacity
+            style={[styles.makeButton, (!canCreatePost || !isLoggedIn) && styles.disabledButton]}
+            onPress={() => {
+              if (!isLoggedIn) {
+                promptSignIn();
+                return;
+              }
+              if (!canCreatePost) {
+                Alert.alert('Membership required', 'Join this clan to make a post.');
+                return;
+              }
+              navigation.navigate(ROUTES.CLAN_POST_CREATE, { clanId });
+            }}
+            disabled={!canCreatePost || !isLoggedIn}
+          >
+            <Text style={styles.makeButtonText}>make</Text>
+          </TouchableOpacity>
+        </View>
+
+        <View style={styles.newsSection}>
+          <Text style={styles.newsTitle}>News</Text>
+          {posts.map((post) => (
+            <PostCard
+              key={post.id}
+              post={post}
+              onPress={() => navigation.navigate(ROUTES.CLAN_POST_DETAIL, { postId: String(post.id) })}
+            />
+          ))}
+          {posts.length === 0 && <Text style={styles.emptyText}>No posts yet. Be the first to make one.</Text>}
+        </View>
+      </ScrollView>
+    </AppSafeArea>
   );
 };
 
 const styles = StyleSheet.create({
+  scroll: {
+    backgroundColor: '#000000',
+  },
   container: {
     padding: 16,
+    gap: 12,
   },
-  subtitle: {
-    color: '#6b7280',
-    marginBottom: 8,
-  },
-  tags: {
+  topBar: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    marginVertical: 8,
-  },
-  chip: {
-    marginRight: 6,
+    alignItems: 'center',
+    justifyContent: 'space-between',
     marginBottom: 6,
   },
-  button: {
-    marginVertical: 12,
+  topBarActions: {
+    flexDirection: 'row',
+    gap: 10,
   },
-  member: {
-    marginVertical: 12,
-    color: '#10b981',
+  iconButton: {
+    padding: 8,
+    borderRadius: 24,
+    backgroundColor: '#111827',
   },
-  segmented: {
-    marginBottom: 12,
+  headerCard: {
+    backgroundColor: '#0f172a',
+    borderRadius: 16,
+    padding: 14,
+    gap: 8,
   },
-  newsBox: {
-    padding: 12,
-    borderRadius: 12,
-    backgroundColor: '#f3f4f6',
+  headerRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  genreChip: {
+    backgroundColor: '#1f2937',
+    color: '#fff',
+  },
+  headerTags: {
+    flexDirection: 'row',
     gap: 6,
   },
-  newsBody: {
-    color: '#4b5563',
+  tagChip: {
+    backgroundColor: '#111827',
+  },
+  tagChipText: {
+    color: '#E5E7EB',
+  },
+  clanTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  clanTitle: {
+    color: '#fff',
+  },
+  memberCount: {
+    color: '#9CA3AF',
+  },
+  clanDescription: {
+    color: '#d1d5db',
+  },
+  buzzBox: {
+    backgroundColor: '#111827',
+    borderRadius: 16,
+    padding: 12,
+    gap: 10,
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  sectionTitle: {
+    color: '#c4b5fd',
+    fontWeight: '700',
+    textTransform: 'uppercase',
+  },
+  joinInline: {
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
+    backgroundColor: '#1f2937',
+  },
+  joinInlineText: {
+    color: '#a78bfa',
+  },
+  buzzList: {
+    gap: 8,
+  },
+  buzzInput: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    backgroundColor: '#0b1222',
+    borderRadius: 12,
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+  },
+  inputDisabled: {
+    opacity: 0.6,
+  },
+  input: {
+    flex: 1,
+    color: '#fff',
+    padding: 0,
+  },
+  bubble: {
+    padding: 10,
+    borderRadius: 12,
+  },
+  bubbleOwn: {
+    backgroundColor: 'rgba(37,99,235,0.35)',
+  },
+  bubbleOther: {
+    backgroundColor: '#0b1222',
+  },
+  bubbleAuthor: {
+    color: '#c7d2fe',
+    marginBottom: 4,
+  },
+  bubbleText: {
+    color: '#f9fafb',
+  },
+  bubbleTime: {
+    color: '#9ca3af',
+    marginTop: 6,
+    fontSize: 12,
+  },
+  noticeCard: {
+    backgroundColor: '#0f172a',
+    borderRadius: 12,
+    padding: 12,
+    gap: 6,
+  },
+  noticeTitle: {
+    color: '#cbd5e1',
+    fontWeight: '700',
+  },
+  noticeText: {
+    color: '#e5e7eb',
+  },
+  actionsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 12,
+  },
+  joinCta: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    backgroundColor: '#1f2937',
+    borderRadius: 12,
+  },
+  joinCtaText: {
+    color: '#fff',
+  },
+  makeButton: {
+    paddingHorizontal: 22,
+    paddingVertical: 10,
+    backgroundColor: '#2563eb',
+    borderRadius: 12,
+  },
+  makeButtonText: {
+    color: '#fff',
+    fontWeight: '700',
+    textTransform: 'uppercase',
+  },
+  disabledButton: {
+    opacity: 0.5,
+  },
+  newsSection: {
+    gap: 8,
+  },
+  newsTitle: {
+    color: '#cbd5e1',
+    fontSize: 18,
+    fontWeight: '700',
+  },
+  postCard: {
+    backgroundColor: '#0f172a',
+    borderRadius: 12,
+    overflow: 'hidden',
+    marginBottom: 10,
+  },
+  postImage: {
+    height: 160,
+    width: '100%',
+  },
+  postContent: {
+    padding: 12,
+    gap: 4,
+  },
+  postType: {
+    color: '#c7d2fe',
+    textTransform: 'uppercase',
+    fontSize: 12,
+  },
+  postTitle: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '700',
+  },
+  postMeta: {
+    color: '#9ca3af',
+  },
+  emptyText: {
+    color: '#9ca3af',
+    marginTop: 8,
   },
 });
 

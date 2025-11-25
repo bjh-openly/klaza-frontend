@@ -1,23 +1,8 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { BuzzingMessage, Clan, ClanState } from './types';
+import { BuzzingMessage, ClanState } from './types';
 
 const initialState: ClanState = {
-  clans: [
-    {
-      id: '1',
-      name: 'SCI-FY',
-      description: 'Futuristic tales and sci-fi fandoms.',
-      tags: ['#sci-fi', '#future'],
-      latestBuzz: 'New teaser dropped today!'
-    },
-    {
-      id: '2',
-      name: 'The Rom-commers',
-      description: 'Romance and comedy shows lovers unite.',
-      tags: ['#romance', '#comedy'],
-      latestBuzz: 'Share your favorite couple moment.'
-    },
-  ],
+  clans: [],
   currentClanId: undefined,
   buzzing: {},
 };

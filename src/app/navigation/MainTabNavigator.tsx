@@ -3,7 +3,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import HomeNavigator from './HomeNavigator';
 import LoungeNavigator from './LoungeNavigator';
-import ClanListScreen from '../features/clan/screens/ClanListScreen';
+import ClanNavigator from './ClanNavigator';
 import EventsHomeScreen from '../features/events/screens/EventsHomeScreen';
 import { MainTabParamList } from './types';
 import { TABS } from '../config/constants';
@@ -38,7 +38,7 @@ const MainTabNavigator = () => {
       <Tab.Screen name={TABS.HOME} component={HomeNavigator} options={{ title: 'Home' }} />
       <Tab.Screen name={TABS.LOUNGE} component={LoungeNavigator} options={{ title: 'Lounge-main' }} />
       <Tab.Screen name={TABS.EVENTS} component={EventsHomeScreen} options={{ title: 'Event' }} />
-      <Tab.Screen name={TABS.CLAN} component={ClanListScreen} options={{ title: 'Clan-main' }} />
+      <Tab.Screen name={TABS.CLAN} component={ClanNavigator} options={{ title: 'Clan-main' }} />
     </Tab.Navigator>
   );
 };
