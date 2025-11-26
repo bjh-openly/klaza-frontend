@@ -3,6 +3,7 @@ export const ROUTES = {
   AUTH: 'Auth',
   MAIN: 'Main',
   SPLASH: 'Splash',
+  AUTH_GATE: 'AuthGate',
   ONBOARDING: 'Onboarding',
   ONBOARDING_WELCOME: 'OnboardingWelcome',
   ONBOARDING_NEXT: 'OnboardingNext',

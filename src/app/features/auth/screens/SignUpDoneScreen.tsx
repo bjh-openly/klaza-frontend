@@ -16,7 +16,7 @@ const SignUpDoneScreen: React.FC<NativeStackScreenProps<AuthStackParamList, type
       <Text style={styles.subtitle}>Welcome to KLAZA Hub. Jump right into discovery.</Text>
       <Button
         mode="contained"
-        onPress={() => navigation.reset({ index: 0, routes: [{ name: ROUTES.MAIN as never }] })}
+        onPress={() => navigation.reset({ index: 0, routes: [{ name: ROUTES.SIGN_IN as never }] })}
       >
         Start >>
       </Button>

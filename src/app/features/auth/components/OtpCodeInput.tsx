@@ -5,19 +5,18 @@ import { Text } from 'react-native-paper';
 interface Props {
   value: string;
   setValue: (value: string) => void;
+  cellCount?: number;
 }
 
-const CELL_COUNT = 6;
-
-const OtpCodeInput: React.FC<Props> = ({ value, setValue }) => {
+const OtpCodeInput: React.FC<Props> = ({ value, setValue, cellCount = 8 }) => {
   const inputRef = useRef<TextInput | null>(null);
 
   const handleChange = useCallback(
     (text: string) => {
-      const sanitized = text.replace(/[^0-9]/g, '').slice(0, CELL_COUNT);
+      const sanitized = text.replace(/[^0-9]/g, '').slice(0, cellCount);
       setValue(sanitized);
     },
-    [setValue],
+    [cellCount, setValue],
   );
 
   return (
@@ -27,14 +26,14 @@ const OtpCodeInput: React.FC<Props> = ({ value, setValue }) => {
         value={value}
         onChangeText={handleChange}
         keyboardType="number-pad"
-        maxLength={CELL_COUNT}
+        maxLength={cellCount}
         textContentType="oneTimeCode"
         autoComplete="sms-otp"
         autoFocus
         style={styles.hiddenInput}
       />
       <View style={styles.cellsRow}>
-        {Array.from({ length: CELL_COUNT }).map((_, index) => {
+        {Array.from({ length: cellCount }).map((_, index) => {
           const symbol = value[index];
           return (
             <View key={index} style={[styles.cell, symbol ? styles.filledCell : null]}>
