@@ -9,7 +9,9 @@ import ModalCloseHeader from '../../../components/layout/ModalCloseHeader';
 
 type Props = NativeStackScreenProps<AuthStackParamList, typeof ROUTES.AUTH_GATE>;
 
-const AuthLandingScreen: React.FC<Props> = ({ navigation }) => {
+const AuthLandingScreen: React.FC<Props> = ({ navigation, route }) => {
+  const redirect = route.params?.redirect ?? null;
+
   return (
     <AppSafeArea>
       <View style={styles.background}>
@@ -33,7 +35,11 @@ const AuthLandingScreen: React.FC<Props> = ({ navigation }) => {
             >
               Create account
             </Button>
-            <Button mode="contained" style={styles.button} onPress={() => navigation.navigate(ROUTES.SIGN_IN)}>
+            <Button
+              mode="contained"
+              style={styles.button}
+              onPress={() => navigation.navigate(ROUTES.SIGN_IN, { redirect })}
+            >
               Sign in
             </Button>
             <Text style={styles.helperText}>

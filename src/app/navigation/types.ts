@@ -1,6 +1,8 @@
 import { NavigatorScreenParams } from '@react-navigation/native';
 import { ROUTES, TABS } from '../config/constants';
 
+export type LoginRedirectTarget = 'MyProfile' | 'ClanPost' | 'Buzzing' | 'Poll' | 'Raffle' | null;
+
 export type RootStackParamList = {
   [ROUTES.SPLASH]: undefined;
   [ROUTES.AUTH]: NavigatorScreenParams<AuthStackParamList> | undefined;
@@ -14,8 +16,8 @@ export type OnboardingStackParamList = {
 };
 
 export type AuthStackParamList = {
-  [ROUTES.AUTH_GATE]: undefined;
-  [ROUTES.SIGN_IN]: undefined;
+  [ROUTES.AUTH_GATE]: { redirect?: LoginRedirectTarget; extraParams?: object } | undefined;
+  [ROUTES.SIGN_IN]: { redirect?: LoginRedirectTarget; extraParams?: object } | undefined;
   [ROUTES.FORGOT_ID]: undefined;
   [ROUTES.FORGOT_PASSWORD]: undefined;
   [ROUTES.SIGN_UP_TERMS]: undefined;

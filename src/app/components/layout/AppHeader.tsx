@@ -5,6 +5,7 @@ import { Text, useTheme } from 'react-native-paper';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { ROUTES } from '../../config/constants';
 import { useAppSelector } from '../../store/hooks';
+import { LoginRedirectTarget } from '../../navigation/types';
 
 interface Props {
   showProfileIcon?: boolean;
@@ -18,7 +19,10 @@ const AppHeader: React.FC<Props> = ({ showProfileIcon = true, logoSource }) => {
 
   const goToMyPage = () => {
     if (!accessToken) {
-      navigation.navigate(ROUTES.AUTH as never);
+      navigation.navigate(ROUTES.AUTH as never, {
+        screen: ROUTES.AUTH_GATE,
+        params: { redirect: 'MyProfile' as LoginRedirectTarget },
+      });
       return;
     }
 

@@ -5,33 +5,26 @@ import { Actor } from '../features/auth/types';
 export interface LoginRequest {
   id: string;
   password: string;
-  stayLoggedIn: boolean;
+  rememberMe: boolean;
   deviceName?: string;
 }
 
 export interface LoginResponse {
   accessToken: string;
-  refreshToken?: string;
-  accessTokenExpiresIn?: number;
-  actorId?: number;
-  userId?: number;
-  loginId?: string;
-  email?: string;
-  profile?: {
-    id?: string;
-    email?: string;
-  };
+  refreshToken?: string | null;
+  tokenType: string;
+  expiresIn: number;
+  actor: import('../features/auth/types').Actor;
+  userProfile: import('../features/auth/types').UserProfile;
+  preferences: import('../features/auth/types').Preferences;
+  joinedClans: import('../features/auth/types').ClanSummary[];
 }
 
 export interface TokenCheckResponse {
-  valid: boolean;
-  actorId?: number;
-  userId?: number;
-  id?: string;
-  email?: string;
-  country?: string;
-  birthDate?: string;
-  gender?: 'FEMALE' | 'MALE' | 'UNKNOWN';
+  actor: import('../features/auth/types').Actor;
+  userProfile: import('../features/auth/types').UserProfile;
+  preferences: import('../features/auth/types').Preferences;
+  joinedClans: import('../features/auth/types').ClanSummary[];
 }
 
 export interface CheckIdRequest {
@@ -90,7 +83,7 @@ export const authApi = createApi({
       query: (body) => ({ url: '/auth/login', method: 'post', data: body }),
     }),
     tokenCheck: builder.query<TokenCheckResponse, void>({
-      query: () => ({ url: '/auth/tokenCheck', method: 'get' }),
+      query: () => ({ url: '/me', method: 'get' }),
     }),
     checkId: builder.mutation<AvailabilityResponse, CheckIdRequest>({
       query: (body) => ({ url: '/auth/signup/checkId', method: 'post', data: body }),

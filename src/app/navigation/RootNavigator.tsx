@@ -8,8 +8,7 @@ import { useAppDispatch } from '../store/hooks';
 import { View, StyleSheet } from 'react-native';
 import { Text } from 'react-native-paper';
 import { restoreSession, finishLoading, startLoading } from '../features/auth/slice';
-import { clearStoredAccessToken, getStoredAccessToken } from '../services/session';
-import apiClient from '../services/apiClient';
+import { clearStoredAuthState, getStoredAuthState } from '../services/session';
 import MyPageScreen from '../features/profile/screens/MyPageScreen';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
@@ -23,33 +22,13 @@ const SplashScreen = ({ navigation }: any) => {
     const startedAt = Date.now();
     const bootstrap = async () => {
       dispatch(startLoading());
-      const storedToken = await getStoredAccessToken();
-      let targetRoute = ROUTES.MAIN;
-      if (storedToken && isMounted) {
-        try {
-          const { data } = await apiClient.get('/auth/tokenCheck');
-          if (data?.valid) {
-            dispatch(
-              restoreSession({
-                accessToken: storedToken,
-                actor: {
-                  id: data.id ?? data.loginId ?? '',
-                  username: data.id ?? data.loginId ?? '',
-                  email: data.email,
-                  country: data.country,
-                  birthDate: data.birthDate,
-                  gender: data.gender,
-                  actorId: data.actorId,
-                  userId: data.userId,
-                },
-              }),
-            );
-          } else {
-            await clearStoredAccessToken();
-          }
-        } catch (error) {
-          await clearStoredAccessToken();
-        }
+      const storedState = await getStoredAuthState();
+      const targetRoute = ROUTES.MAIN;
+
+      if (storedState && isMounted) {
+        dispatch(restoreSession(storedState));
+      } else {
+        await clearStoredAuthState();
       }
 
       const elapsed = Date.now() - startedAt;
