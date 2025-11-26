@@ -8,8 +8,15 @@ const apiClient = axios.create({
   timeout: 10000,
 });
 
+let accessTokenProvider: (() => string | null | undefined) | null = null;
+
+export const setAuthTokenProvider = (provider: () => string | null | undefined) => {
+  accessTokenProvider = provider;
+};
+
 apiClient.interceptors.request.use(async (config) => {
-  const token = await getStoredAccessToken();
+  const tokenFromStore = accessTokenProvider?.();
+  const token = tokenFromStore ?? (await getStoredAccessToken());
   if (token) {
     config.headers = {
       ...(config.headers || {}),

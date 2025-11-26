@@ -6,14 +6,16 @@ import AuthTextInput from '../components/AuthTextInput';
 import { AuthStackParamList } from '../../../navigation/types';
 import { ROUTES } from '../../../config/constants';
 import { useAppDispatch, useAppSelector } from '../../../store/hooks';
-import { signInSuccess, startLoading, finishLoading, setError as setAuthError } from '../slice';
-import { setStoredAccessToken } from '../../../services/session';
+import { finishLoading, setError as setAuthError, signInSuccess, startLoading } from '../slice';
+import { clearStoredAuthState, setStoredAuthState } from '../../../services/session';
 import AppSafeArea from '../../../components/layout/AppSafeArea';
 import ModalCloseHeader from '../../../components/layout/ModalCloseHeader';
-import { useLoginMutation } from '../../../services/authApi';
+import apiClient from '../../../services/apiClient';
+import { LoginRedirectTarget } from '../../../navigation/types';
 
 const SignInScreen: React.FC<NativeStackScreenProps<AuthStackParamList, typeof ROUTES.SIGN_IN>> = ({
   navigation,
+  route,
 }) => {
   const dispatch = useAppDispatch();
   const { error: authError } = useAppSelector((state) => state.auth);
@@ -21,7 +23,7 @@ const SignInScreen: React.FC<NativeStackScreenProps<AuthStackParamList, typeof R
   const [password, setPassword] = useState('');
   const [stayLoggedIn, setStayLoggedIn] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [login] = useLoginMutation();
+  const redirect: LoginRedirectTarget | undefined = route.params?.redirect;
 
   const passwordError = useMemo(
     () => Boolean(authError && authError.toLowerCase().includes('password')),
@@ -38,34 +40,53 @@ const SignInScreen: React.FC<NativeStackScreenProps<AuthStackParamList, typeof R
     dispatch(startLoading());
     dispatch(setAuthError(null));
     try {
-      const { accessToken, email, loginId: responseLoginId, actorId, userId } = await login({
-        id: loginId.trim().toLowerCase(),
+      const response = await apiClient.post('/auth/login', {
+        id: loginId.trim(),
         password,
-        stayLoggedIn,
-      }).unwrap();
-      await setStoredAccessToken(accessToken);
+        rememberMe: stayLoggedIn,
+      });
+
       dispatch(
         signInSuccess({
-          accessToken,
-          actor: {
-            id: responseLoginId ?? loginId,
-            username: responseLoginId ?? loginId,
-            email,
-            actorId,
-            userId,
-          },
+          accessToken: response.data.accessToken,
+          refreshToken: response.data.refreshToken ?? null,
+          actor: response.data.actor,
+          userProfile: response.data.userProfile,
+          preferences: response.data.preferences,
+          joinedClans: response.data.joinedClans ?? [],
+          rememberMe: stayLoggedIn,
         }),
       );
-      navigation.getParent()?.reset({ index: 0, routes: [{ name: ROUTES.MAIN as never }] });
+
+      if (stayLoggedIn) {
+        await setStoredAuthState({
+          accessToken: response.data.accessToken,
+          refreshToken: response.data.refreshToken ?? null,
+          actor: response.data.actor ?? null,
+          userProfile: response.data.userProfile ?? null,
+          preferences: response.data.preferences ?? null,
+          joinedClans: response.data.joinedClans ?? [],
+          rememberMe: stayLoggedIn,
+        });
+      } else {
+        await clearStoredAuthState();
+      }
+
+      if (redirect === 'MyProfile') {
+        navigation.getParent()?.reset({ index: 0, routes: [{ name: ROUTES.MY_PAGE as never }] });
+      } else {
+        navigation.getParent()?.reset({ index: 0, routes: [{ name: ROUTES.MAIN as never }] });
+      }
     } catch (e) {
-      const errorMessage = (e as { data?: any; message?: string })?.message;
-      const code = (e as { data?: { code?: string } })?.data?.code;
+      const axiosError = e as { response?: { status?: number; data?: { code?: string; message?: string } } };
+      const code = axiosError?.response?.data?.code;
+      const status = axiosError?.response?.status;
       const messageByCode =
-        code === 'INVALID_PASSWORD'
+        code === 'INVALID_PASSWORD' || status === 401
           ? 'Oops wrong password! Try again.'
           : code === 'INVALID_ID'
-            ? 'Oops wrong ID! Try again.'
-            : errorMessage || 'Login failed. Please check your ID/password.';
+            ? 'Oops wrong ID/address! Try again.'
+            : axiosError?.response?.data?.message || 'Login failed. Please check your ID/password.';
       setError(messageByCode);
       dispatch(setAuthError(messageByCode));
     } finally {
@@ -87,11 +108,11 @@ const SignInScreen: React.FC<NativeStackScreenProps<AuthStackParamList, typeof R
         <AuthTextInput
           label="ID"
           value={loginId}
-          onChangeText={(text) => setLoginId(text.toLowerCase())}
+          onChangeText={(text) => setLoginId(text)}
           autoCapitalize="none"
           error={idError}
         />
-        {idError && <HelperText type="error">Oops wrong ID! Try again.</HelperText>}
+        {idError && <HelperText type="error">Oops wrong ID/address! Try again.</HelperText>}
 
         <AuthTextInput
           label="Password"

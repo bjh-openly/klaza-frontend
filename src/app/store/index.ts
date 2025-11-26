@@ -4,6 +4,7 @@ import { authApi } from '../services/authApi';
 import { klazaApi } from '../services/klazaApi';
 import { clanApi } from '../services/clanApi';
 import { eventsApi } from '../services/eventsApi';
+import { setAuthTokenProvider } from '../services/apiClient';
 
 export const store = configureStore({
   reducer: rootReducer,
@@ -15,6 +16,8 @@ export const store = configureStore({
       eventsApi.middleware,
     ),
 });
+
+setAuthTokenProvider(() => store.getState().auth.accessToken);
 
 export type AppDispatch = typeof store.dispatch;
 export type RootState = ReturnType<typeof store.getState>;
