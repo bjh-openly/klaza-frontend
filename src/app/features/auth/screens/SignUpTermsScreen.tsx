@@ -10,7 +10,9 @@ import ModalCloseHeader from '../../../components/layout/ModalCloseHeader';
 const SignUpTermsScreen: React.FC<NativeStackScreenProps<AuthStackParamList, typeof ROUTES.SIGN_UP_TERMS>> = ({
   navigation,
 }) => {
-  const [agree, setAgree] = useState(false);
+  const [agree1, setAgree1] = useState(false);
+  const [agree2, setAgree2] = useState(false);
+  const canProceed = agree1 && agree2;
 
   return (
     <AppSafeArea>
@@ -20,20 +22,44 @@ const SignUpTermsScreen: React.FC<NativeStackScreenProps<AuthStackParamList, typ
           Welcome! Come join the hub.
         </Text>
         <View style={styles.termsBox}>
+          <Text variant="titleMedium" style={styles.termsTitle}>
+            Terms of Use (1)
+          </Text>
           <Text variant="bodyMedium" style={styles.termsText}>
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla bibendum, lacus quis ultricies tempor, magna
-            arcu hendrerit augue, non lacinia ligula lorem ac nisi. Pellentesque habitant morbi tristique senectus et
-            netus et malesuada fames ac turpis egestas. (Shortened terms preview)
+            Welcome to KLAZA Hub! By using our service, you agree to the following terms: You may use this service only for
+            lawful purposes. Do not misuse, disrupt, or attempt to access our systems in unauthorized ways. You are responsible
+            for keeping your account information secure and for all activity under your account.
           </Text>
         </View>
         <Checkbox.Item
           label="I agree to the terms and conditions."
-          status={agree ? 'checked' : 'unchecked'}
-          onPress={() => setAgree(!agree)}
+          status={agree1 ? 'checked' : 'unchecked'}
+          onPress={() => setAgree1(!agree1)}
           color="#1D4ED8"
           labelStyle={styles.checkboxLabel}
         />
-        <Button mode="contained" disabled={!agree} onPress={() => navigation.navigate(ROUTES.SIGN_UP_ID)}>
+        <View style={styles.termsBox}>
+          <Text variant="titleMedium" style={styles.termsTitle}>
+            Terms of Use (2)
+          </Text>
+          <Text variant="bodyMedium" style={styles.termsText}>
+            By posting content, you give us permission to display it on the platform as needed. Do not post content that is
+            illegal, harmful, or violates others’ rights. The service is provided “as is” without guarantees and we may update
+            or stop parts of the service at any time.
+          </Text>
+        </View>
+        <Checkbox.Item
+          label="I agree to the terms and conditions."
+          status={agree2 ? 'checked' : 'unchecked'}
+          onPress={() => setAgree2(!agree2)}
+          color="#1D4ED8"
+          labelStyle={styles.checkboxLabel}
+        />
+        <Button
+          mode="contained"
+          disabled={!canProceed}
+          onPress={() => navigation.navigate(ROUTES.SIGN_UP_ID, { termsAgreed1: agree1, termsAgreed2: agree2 })}
+        >
           Next>
         </Button>
       </ScrollView>
@@ -60,6 +86,10 @@ const styles = StyleSheet.create({
   termsText: {
     lineHeight: 20,
     color: '#E5E7EB',
+  },
+  termsTitle: {
+    marginBottom: 8,
+    color: '#F9FAFB',
   },
   checkboxLabel: {
     color: '#F9FAFB',

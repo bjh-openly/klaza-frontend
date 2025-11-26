@@ -5,6 +5,11 @@ export interface Actor {
   username: string;
   email?: string;
   country?: string;
+  actorId?: number;
+  userId?: number;
+  birthDate?: string;
+  gender?: 'FEMALE' | 'MALE' | 'UNKNOWN';
+  favorites?: string[];
   points?: number;
 }
 

@@ -8,7 +8,8 @@ import { useAppDispatch } from '../store/hooks';
 import { View, ActivityIndicator, StyleSheet } from 'react-native';
 import { Text } from 'react-native-paper';
 import { restoreSession, finishLoading, startLoading } from '../features/auth/slice';
-import { getStoredAccessToken } from '../services/session';
+import { clearStoredAccessToken, getStoredAccessToken } from '../services/session';
+import apiClient from '../services/apiClient';
 import MyPageScreen from '../features/profile/screens/MyPageScreen';
 
 const RootStack = createNativeStackNavigator<RootStackParamList>();
@@ -22,11 +23,35 @@ const SplashScreen = ({ navigation }: any) => {
     const bootstrap = async () => {
       dispatch(startLoading());
       const storedToken = await getStoredAccessToken();
+      let targetRoute = ROUTES.AUTH;
       if (storedToken && isMounted) {
-        dispatch(restoreSession({ accessToken: storedToken }));
+        try {
+          const { data } = await apiClient.get('/auth/tokenCheck');
+          if (data?.valid) {
+            dispatch(
+              restoreSession({
+                accessToken: storedToken,
+                actor: {
+                  id: data.id ?? data.loginId ?? '',
+                  username: data.id ?? data.loginId ?? '',
+                  email: data.email,
+                  country: data.country,
+                  birthDate: data.birthDate,
+                  gender: data.gender,
+                  actorId: data.actorId,
+                  userId: data.userId,
+                },
+              }),
+            );
+            targetRoute = ROUTES.MAIN;
+          } else {
+            await clearStoredAccessToken();
+          }
+        } catch (error) {
+          await clearStoredAccessToken();
+        }
       }
 
-      const targetRoute = ROUTES.MAIN;
       const elapsed = Date.now() - startedAt;
       const remaining = Math.max(0, 2000 - elapsed);
 

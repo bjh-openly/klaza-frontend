@@ -1,7 +1,6 @@
 import axios, { AxiosError, AxiosRequestConfig } from 'axios';
 import { API_BASE_URL } from '../config/env';
 import { BaseQueryFn } from '@reduxjs/toolkit/query';
-import type { SerializedError } from '@reduxjs/toolkit';
 import { getStoredAccessToken } from './session';
 
 const apiClient = axios.create({
@@ -20,6 +19,12 @@ apiClient.interceptors.request.use(async (config) => {
   return config;
 });
 
+export interface ApiError {
+  status?: number;
+  data?: unknown;
+  message?: string;
+}
+
 export const axiosBaseQuery = (): BaseQueryFn<
   {
     url: string;
@@ -28,7 +33,7 @@ export const axiosBaseQuery = (): BaseQueryFn<
     params?: AxiosRequestConfig['params'];
   },
   unknown,
-  SerializedError
+  ApiError
 > =>
   async ({ url, method = 'get', data, params }) => {
     try {
@@ -38,8 +43,9 @@ export const axiosBaseQuery = (): BaseQueryFn<
       const err = axiosError as AxiosError;
       return {
         error: {
-          name: 'ApiError',
-          message: err.message,
+          status: err.response?.status,
+          data: err.response?.data,
+          message: (err.response?.data as { message?: string })?.message || err.message,
         },
       };
     }

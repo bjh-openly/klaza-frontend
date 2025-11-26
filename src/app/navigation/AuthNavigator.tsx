@@ -2,6 +2,7 @@ import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { ROUTES } from '../config/constants';
 import { AuthStackParamList } from './types';
+import AuthLandingScreen from '../features/auth/screens/AuthLandingScreen';
 import SignInScreen from '../features/auth/screens/SignInScreen';
 import ForgotIdScreen from '../features/auth/screens/ForgotIdScreen';
 import ForgotPasswordScreen from '../features/auth/screens/ForgotPasswordScreen';
@@ -19,7 +20,8 @@ const Stack = createNativeStackNavigator<AuthStackParamList>();
 
 const AuthNavigator = () => {
   return (
-    <Stack.Navigator screenOptions={{ headerShown: false }}>
+    <Stack.Navigator screenOptions={{ headerShown: false }} initialRouteName={ROUTES.AUTH_GATE}>
+      <Stack.Screen name={ROUTES.AUTH_GATE} component={AuthLandingScreen} />
       <Stack.Screen name={ROUTES.SIGN_IN} component={SignInScreen} />
       <Stack.Screen name={ROUTES.FORGOT_ID} component={ForgotIdScreen} />
       <Stack.Screen name={ROUTES.FORGOT_PASSWORD} component={ForgotPasswordScreen} />

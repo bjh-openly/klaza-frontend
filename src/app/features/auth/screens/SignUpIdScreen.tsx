@@ -7,16 +7,45 @@ import { AuthStackParamList } from '../../../navigation/types';
 import { ROUTES } from '../../../config/constants';
 import AppSafeArea from '../../../components/layout/AppSafeArea';
 import ModalCloseHeader from '../../../components/layout/ModalCloseHeader';
+import { useCheckIdMutation } from '../../../services/authApi';
 
-const SignUpIdScreen: React.FC<NativeStackScreenProps<AuthStackParamList, typeof ROUTES.SIGN_UP_ID>> = ({ navigation }) => {
+const SignUpIdScreen: React.FC<NativeStackScreenProps<AuthStackParamList, typeof ROUTES.SIGN_UP_ID>> = ({
+  navigation,
+  route,
+}) => {
+  const { termsAgreed1, termsAgreed2 } = route.params;
   const [userId, setUserId] = useState('');
   const [checked, setChecked] = useState(false);
-  const [isTaken, setIsTaken] = useState(false);
-  const isValid = userId.length >= 4;
+  const [available, setAvailable] = useState<boolean | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [checkId, { isLoading }] = useCheckIdMutation();
+  const isValid = /^[a-z0-9._-]{3,32}$/.test(userId);
 
-  const checkDuplicates = () => {
+  const handleChange = (value: string) => {
+    const sanitized = value.trim().toLowerCase();
+    setUserId(sanitized);
+    setChecked(false);
+    setAvailable(null);
+    setError(null);
+  };
+
+  const checkDuplicates = async () => {
     setChecked(true);
-    setIsTaken(userId.toLowerCase() === 'taken');
+    setAvailable(null);
+    setError(null);
+    if (!isValid) {
+      setError('Use 3-32 lowercase letters, numbers, . _ - only.');
+      return;
+    }
+    try {
+      const response = await checkId({ id: userId }).unwrap();
+      setAvailable(response.available);
+      if (!response.available) {
+        setError('Someone already uses it.');
+      }
+    } catch (e) {
+      setError('Could not check ID. Please try again.');
+    }
   };
 
   return (
@@ -27,17 +56,25 @@ const SignUpIdScreen: React.FC<NativeStackScreenProps<AuthStackParamList, typeof
           ID
         </Text>
         <Text style={styles.subtitle}>Insert a nickname that you'll use on KLAZA.</Text>
-        <AuthTextInput label="ID" value={userId} onChangeText={setUserId} autoCapitalize="none" />
+        <AuthTextInput label="ID" value={userId} onChangeText={handleChange} autoCapitalize="none" />
         <View style={styles.actions}>
-          <Button mode="outlined" onPress={checkDuplicates} disabled={!isValid}>
+          <Button mode="outlined" onPress={checkDuplicates} disabled={!isValid || isLoading}>
             Check duplicates
           </Button>
         </View>
-        {checked && isTaken && <HelperText type="error">Someone already uses it.</HelperText>}
+        {checked && available === false && <HelperText type="error">Someone already uses it.</HelperText>}
+        {error && <HelperText type="error">{error}</HelperText>}
+        {checked && available && <HelperText type="info">This ID is available.</HelperText>}
         <Button
           mode="contained"
-          disabled={!isValid || (checked && isTaken)}
-          onPress={() => navigation.navigate(ROUTES.SIGN_UP_PASSWORD)}
+          disabled={!isValid || available !== true}
+          onPress={() =>
+            navigation.navigate(ROUTES.SIGN_UP_PASSWORD, {
+              termsAgreed1,
+              termsAgreed2,
+              id: userId,
+            })
+          }
         >
           Next
         </Button>

@@ -14,17 +14,50 @@ export type OnboardingStackParamList = {
 };
 
 export type AuthStackParamList = {
+  [ROUTES.AUTH_GATE]: undefined;
   [ROUTES.SIGN_IN]: undefined;
   [ROUTES.FORGOT_ID]: undefined;
   [ROUTES.FORGOT_PASSWORD]: undefined;
   [ROUTES.SIGN_UP_TERMS]: undefined;
-  [ROUTES.SIGN_UP_ID]: undefined;
-  [ROUTES.SIGN_UP_PASSWORD]: undefined;
-  [ROUTES.SIGN_UP_EMAIL]: undefined;
-  [ROUTES.SIGN_UP_EMAIL_CODE]: undefined;
-  [ROUTES.SIGN_UP_COUNTRY]: undefined;
-  [ROUTES.SIGN_UP_BIRTH]: undefined;
-  [ROUTES.SIGN_UP_FAVORITES]: undefined;
+  [ROUTES.SIGN_UP_ID]: { termsAgreed1: boolean; termsAgreed2: boolean };
+  [ROUTES.SIGN_UP_PASSWORD]: { termsAgreed1: boolean; termsAgreed2: boolean; id: string };
+  [ROUTES.SIGN_UP_EMAIL]: { termsAgreed1: boolean; termsAgreed2: boolean; id: string; password: string };
+  [ROUTES.SIGN_UP_EMAIL_CODE]: {
+    termsAgreed1: boolean;
+    termsAgreed2: boolean;
+    id: string;
+    password: string;
+    email: string;
+    emailVerifySeq?: number;
+  };
+  [ROUTES.SIGN_UP_COUNTRY]: {
+    termsAgreed1: boolean;
+    termsAgreed2: boolean;
+    id: string;
+    password: string;
+    email: string;
+    emailVerifySeq: number;
+  };
+  [ROUTES.SIGN_UP_BIRTH]: {
+    termsAgreed1: boolean;
+    termsAgreed2: boolean;
+    id: string;
+    password: string;
+    email: string;
+    emailVerifySeq: number;
+    country: string;
+  };
+  [ROUTES.SIGN_UP_FAVORITES]: {
+    termsAgreed1: boolean;
+    termsAgreed2: boolean;
+    id: string;
+    password: string;
+    email: string;
+    emailVerifySeq: number;
+    country: string;
+    birthDt: string;
+    gender: 'FEMALE' | 'MALE' | 'UNKNOWN';
+  };
   [ROUTES.SIGN_UP_DONE]: undefined;
 };
 

@@ -17,7 +17,7 @@ const SignInScreen: React.FC<NativeStackScreenProps<AuthStackParamList, typeof R
 }) => {
   const dispatch = useAppDispatch();
   const { error: authError } = useAppSelector((state) => state.auth);
-  const [email, setEmail] = useState('');
+  const [loginId, setLoginId] = useState('');
   const [password, setPassword] = useState('');
   const [stayLoggedIn, setStayLoggedIn] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -27,13 +27,10 @@ const SignInScreen: React.FC<NativeStackScreenProps<AuthStackParamList, typeof R
     () => Boolean(authError && authError.toLowerCase().includes('password')),
     [authError],
   );
-  const emailError = useMemo(
-    () => Boolean(authError && authError.toLowerCase().includes('email')),
-    [authError],
-  );
+  const idError = useMemo(() => Boolean(authError && authError.toLowerCase().includes('id')), [authError]);
 
   const handleSignIn = async () => {
-    if (!email || !password) {
+    if (!loginId || !password) {
       setError('Please fill in both fields.');
       return;
     }
@@ -41,15 +38,36 @@ const SignInScreen: React.FC<NativeStackScreenProps<AuthStackParamList, typeof R
     dispatch(startLoading());
     dispatch(setAuthError(null));
     try {
-      const { accessToken, actor } = await login({ email, password }).unwrap();
+      const { accessToken, email, loginId: responseLoginId, actorId, userId } = await login({
+        id: loginId.trim().toLowerCase(),
+        password,
+        stayLoggedIn,
+      }).unwrap();
       await setStoredAccessToken(accessToken);
-      dispatch(signInSuccess({ accessToken, actor }));
+      dispatch(
+        signInSuccess({
+          accessToken,
+          actor: {
+            id: responseLoginId ?? loginId,
+            username: responseLoginId ?? loginId,
+            email,
+            actorId,
+            userId,
+          },
+        }),
+      );
       navigation.getParent()?.reset({ index: 0, routes: [{ name: ROUTES.MAIN as never }] });
     } catch (e) {
-      const message = (e as { message?: string })?.message ||
-        'Login failed. Please check your email/password.';
-      setError(message);
-      dispatch(setAuthError(message));
+      const errorMessage = (e as { data?: any; message?: string })?.message;
+      const code = (e as { data?: { code?: string } })?.data?.code;
+      const messageByCode =
+        code === 'INVALID_PASSWORD'
+          ? 'Oops wrong password! Try again.'
+          : code === 'INVALID_ID'
+            ? 'Oops wrong ID! Try again.'
+            : errorMessage || 'Login failed. Please check your ID/password.';
+      setError(messageByCode);
+      dispatch(setAuthError(messageByCode));
     } finally {
       dispatch(finishLoading());
     }
@@ -67,13 +85,13 @@ const SignInScreen: React.FC<NativeStackScreenProps<AuthStackParamList, typeof R
         </View>
 
         <AuthTextInput
-          label="E-mail address"
-          value={email}
-          onChangeText={setEmail}
+          label="ID"
+          value={loginId}
+          onChangeText={(text) => setLoginId(text.toLowerCase())}
           autoCapitalize="none"
-          error={emailError}
+          error={idError}
         />
-        {emailError && <HelperText type="error">Oops wrong email address! Try again.</HelperText>}
+        {idError && <HelperText type="error">Oops wrong ID! Try again.</HelperText>}
 
         <AuthTextInput
           label="Password"
