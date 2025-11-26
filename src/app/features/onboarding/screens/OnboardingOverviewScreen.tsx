@@ -7,19 +7,16 @@ import { ROUTES } from '../../../config/constants';
 import { OnboardingStackParamList } from '../../../navigation/types';
 import AppSafeArea from '../../../components/layout/AppSafeArea';
 import { useOnboarding } from '../../../navigation/OnboardingNavigator';
-import { useAppSelector } from '../../../store/hooks';
 
 const OnboardingOverviewScreen: React.FC<NativeStackScreenProps<OnboardingStackParamList, typeof ROUTES.ONBOARDING_NEXT>> = ({
   navigation,
 }) => {
   const { finish } = useOnboarding();
-  const { accessToken } = useAppSelector((state) => state.auth);
 
   const completeOnboarding = async () => {
     await AsyncStorage.setItem('klaza.onboardingCompleted', 'true');
     finish();
-    const nextRoute = accessToken ? ROUTES.MAIN : ROUTES.AUTH;
-    navigation.getParent()?.reset({ index: 0, routes: [{ name: nextRoute as never }] });
+    navigation.getParent()?.reset({ index: 0, routes: [{ name: ROUTES.MAIN as never }] });
   };
 
   const sections = [

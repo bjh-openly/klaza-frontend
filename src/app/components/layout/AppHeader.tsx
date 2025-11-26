@@ -4,6 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import { Text, useTheme } from 'react-native-paper';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { ROUTES } from '../../config/constants';
+import { useAppSelector } from '../../store/hooks';
 
 interface Props {
   showProfileIcon?: boolean;
@@ -13,8 +14,14 @@ interface Props {
 const AppHeader: React.FC<Props> = ({ showProfileIcon = true, logoSource }) => {
   const navigation = useNavigation<any>();
   const theme = useTheme();
+  const { accessToken } = useAppSelector((state) => state.auth);
 
   const goToMyPage = () => {
+    if (!accessToken) {
+      navigation.navigate(ROUTES.AUTH as never);
+      return;
+    }
+
     navigation.navigate(ROUTES.MY_PAGE as never);
   };
 
