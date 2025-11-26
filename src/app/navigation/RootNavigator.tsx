@@ -5,12 +5,13 @@ import AuthNavigator from './AuthNavigator';
 import MainTabNavigator from './MainTabNavigator';
 import { RootStackParamList } from './types';
 import { useAppDispatch } from '../store/hooks';
-import { View, ActivityIndicator, StyleSheet } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import { Text } from 'react-native-paper';
 import { restoreSession, finishLoading, startLoading } from '../features/auth/slice';
 import { clearStoredAccessToken, getStoredAccessToken } from '../services/session';
 import apiClient from '../services/apiClient';
 import MyPageScreen from '../features/profile/screens/MyPageScreen';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 
 const RootStack = createNativeStackNavigator<RootStackParamList>();
 
@@ -23,7 +24,7 @@ const SplashScreen = ({ navigation }: any) => {
     const bootstrap = async () => {
       dispatch(startLoading());
       const storedToken = await getStoredAccessToken();
-      let targetRoute = ROUTES.AUTH;
+      let targetRoute = ROUTES.MAIN;
       if (storedToken && isMounted) {
         try {
           const { data } = await apiClient.get('/auth/tokenCheck');
@@ -43,7 +44,6 @@ const SplashScreen = ({ navigation }: any) => {
                 },
               }),
             );
-            targetRoute = ROUTES.MAIN;
           } else {
             await clearStoredAccessToken();
           }
@@ -71,14 +71,18 @@ const SplashScreen = ({ navigation }: any) => {
   return (
     <View style={styles.splashContainer}>
       <View style={styles.overlay}>
-        <Text variant="displaySmall" style={styles.logo}>
-          KLAZA
-          <Text style={styles.logoAccent}>Hub</Text>
-        </Text>
+        <View style={styles.brandRow}>
+          <Text variant="headlineLarge" style={styles.logoText}>
+            KLAZA
+          </Text>
+          <Text variant="headlineMedium" style={styles.logoAccent}>
+            Hub
+          </Text>
+          <MaterialCommunityIcons name="cat" size={28} color="#f59e0b" style={styles.logoIcon} />
+        </View>
         <Text variant="titleMedium" style={styles.tagline}>
           Share the Story™
         </Text>
-        <ActivityIndicator color="#fff" style={styles.spinner} />
       </View>
     </View>
   );
@@ -102,24 +106,34 @@ const styles = StyleSheet.create({
   },
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.8)',
+    backgroundColor: '#000',
     alignItems: 'center',
     justifyContent: 'center',
     padding: 24,
   },
-  logo: {
+  brandRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    gap: 6,
+  },
+  logoText: {
     color: '#fff',
     letterSpacing: 2,
+    fontWeight: '900',
   },
   logoAccent: {
     color: '#f59e0b',
+    fontWeight: '900',
+    marginBottom: 2,
+  },
+  logoIcon: {
+    marginLeft: 4,
+    marginBottom: 4,
   },
   tagline: {
     color: '#e5e7eb',
     marginTop: 8,
-  },
-  spinner: {
-    marginTop: 20,
+    letterSpacing: 0.5,
   },
 });
 
