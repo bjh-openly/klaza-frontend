@@ -1,7 +1,6 @@
 import { combineReducers } from '@reduxjs/toolkit';
 import authReducer from '../features/auth/slice';
 import clanReducer from '../features/clan/slice';
-import eventsReducer from '../features/events/slice';
 import profileReducer from '../features/profile/slice';
 import loungeReducer from '../features/lounge/store/loungeSlice';
 import { authApi } from '../services/authApi';
@@ -12,7 +11,6 @@ import { eventsApi } from '../services/eventsApi';
 const rootReducer = combineReducers({
   auth: authReducer,
   clan: clanReducer,
-  events: eventsReducer,
   profile: profileReducer,
   lounge: loungeReducer,
   [authApi.reducerPath]: authApi.reducer,
