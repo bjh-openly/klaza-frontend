@@ -11,6 +11,11 @@ const ModalCloseHeader: React.FC<Props> = ({ onCloseToRoot = false }) => {
   const navigation = useNavigation<any>();
 
   const handleClose = () => {
+    if (navigation.canGoBack()) {
+      navigation.goBack();
+      return;
+    }
+
     if (onCloseToRoot) {
       navigation.reset({
         index: 0,
