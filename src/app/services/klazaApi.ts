@@ -1,79 +1,115 @@
 import { createApi } from '@reduxjs/toolkit/query/react';
 import { axiosBaseQuery } from './apiClient';
 import { FEATURE_FLAGS } from '../config/env';
+import { getCurrentLang } from './locale';
+import { ContentType, PaginatedResponse } from '../types/content';
 
-export interface KlazaSearchItem {
+export interface KlazaPostListItem {
   klazaId: number;
   contentId: number;
-  seqNbr: number;
+  contentType: ContentType;
   title: string;
-  contentSnippet: string;
-  publishAt: string;
-  registeredAt: string;
-  authorActorIds: number[];
-  authorLogins: string[];
-  authorEmails: string[];
+  subtitle?: string | null;
+  badgeLabel?: string | null;
+  thumbnailUrl?: string | null;
+  publishAt?: string | null;
+  createdAt: string;
+  pinned?: boolean;
 }
 
-export interface KlazaSearchResponse {
-  items: KlazaSearchItem[];
-  total: number;
-  page: number;
-  size: number;
-  hasNext: boolean;
+export interface KlazaPostListResponse extends PaginatedResponse<KlazaPostListItem> {}
+
+export interface KlazaPostDetail {
+  klazaId: number;
+  contentId: number;
+  title: string;
+  subtitle?: string | null;
+  badgeLabel?: string | null;
+  coverImageUrl?: string | null;
+  body?: string | null;
+  createdAt: string;
+  updatedAt?: string | null;
+  likeCount?: number | null;
+  commentCount?: number | null;
 }
 
-const mockSearchResponse: KlazaSearchResponse = {
+const mockKlazaList: KlazaPostListResponse = {
+  page: 0,
+  size: 10,
+  hasNext: false,
   items: [
     {
-      klazaId: 3,
-      contentId: 7,
-      seqNbr: 1,
-      title: '월간 드라마 라운드업',
-      contentSnippet:
-        '이번 드라마 신작 리뷰와 추천 리스트를 정리했습니다. {{slot:thumb1}} 로 썸네일을 연결하세요.',
-      publishAt: '2025-11-20T11:52:52.274',
-      registeredAt: '2025-11-23T12:33:40.280956',
-      authorActorIds: [1],
-      authorLogins: ['buzzpik01'],
-      authorEmails: ['ab81004@naver.com'],
-    },
-    {
-      klazaId: 2,
-      contentId: 6,
-      seqNbr: 1,
-      title: '주간 드라마 라운드업',
-      contentSnippet: '이번 주 신작 리뷰와 추천 리스트를 정리했습니다. {{slot:thumb1}} 로 썸네일을 연결하세요.',
-      publishAt: '2025-11-20T11:52:52.274',
-      registeredAt: '2025-11-23T12:33:18.28881',
-      authorActorIds: [1],
-      authorLogins: ['buzzpik01'],
-      authorEmails: ['ab81004@naver.com'],
+      klazaId: 10,
+      contentId: 101,
+      contentType: 'KLAZA',
+      title: 'The art of ambiguity in Korean drama titles',
+      subtitle: 'Brought to you by: KLAZA Editor Judy',
+      badgeLabel: 'Post',
+      thumbnailUrl: 'https://images.unsplash.com/photo-1505685296765-3a2736de412f?auto=format&fit=crop&w=1200&q=80',
+      publishAt: '2025-01-02T09:00:00Z',
+      createdAt: '2025-01-01T08:00:00Z',
+      pinned: true,
     },
   ],
-  total: 2,
-  page: 0,
-  size: 20,
-  hasNext: false,
+};
+
+const mockKlazaDetail: KlazaPostDetail = {
+  klazaId: 10,
+  contentId: 101,
+  title: 'The art of ambiguity in Korean drama titles',
+  subtitle: 'Brought to you by: KLAZA Editor Judy',
+  badgeLabel: 'KLAZA made',
+  coverImageUrl: 'https://images.unsplash.com/photo-1501854140801-50d01698950b?auto=format&fit=crop&w=1200&q=80',
+  body: '<p>The title of a drama is the target of boos or cheers...</p>',
+  createdAt: '2025-01-01T08:00:00Z',
+  updatedAt: '2025-01-02T08:00:00Z',
+  likeCount: 0,
+  commentCount: 0,
 };
 
 export const klazaApi = createApi({
   reducerPath: 'klazaApi',
   baseQuery: axiosBaseQuery(),
   endpoints: (builder) => ({
-    search: builder.query<KlazaSearchResponse, { page?: number; size?: number }>({
+    getKlazaPosts: builder.query<KlazaPostListResponse, { page?: number; size?: number; lang?: string } | void>({
       async queryFn(args = {}, _api, _extra, fetchWithBQ) {
-        const { page = 0, size = 10 } = args;
+        const { page = 0, size = 10, lang = getCurrentLang() } = args;
+
         if (FEATURE_FLAGS.enableMockApis) {
-          return { data: mockSearchResponse };
+          return { data: mockKlazaList };
         }
-        const response = await fetchWithBQ({ url: '/klaza/search', method: 'get', params: { page, size } });
+
+        const response = await fetchWithBQ({
+          url: '/klaza/posts',
+          method: 'get',
+          params: { page, size, lang },
+        });
+
         if (response.error) return { error: response.error };
-        const data = (response.data as KlazaSearchResponse) ?? mockSearchResponse;
+        const data = (response.data as KlazaPostListResponse) ?? mockKlazaList;
+        return { data };
+      },
+    }),
+    getKlazaPostDetail: builder.query<KlazaPostDetail, { klazaId: number; lang?: string }>({
+      async queryFn(args, _api, _extra, fetchWithBQ) {
+        const { klazaId, lang = getCurrentLang() } = args;
+
+        if (FEATURE_FLAGS.enableMockApis) {
+          return { data: mockKlazaDetail };
+        }
+
+        const response = await fetchWithBQ({
+          url: `/klaza/posts/${klazaId}`,
+          method: 'get',
+          params: { lang },
+        });
+
+        if (response.error) return { error: response.error };
+        const data = (response.data as KlazaPostDetail) ?? mockKlazaDetail;
         return { data };
       },
     }),
   }),
 });
 
-export const { useSearchQuery: useSearchKlazaQuery, useLazySearchQuery: useLazySearchKlazaQuery } = klazaApi;
+export const { useGetKlazaPostsQuery, useLazyGetKlazaPostsQuery, useGetKlazaPostDetailQuery } = klazaApi;

@@ -4,6 +4,7 @@ import { authApi } from '../services/authApi';
 import { klazaApi } from '../services/klazaApi';
 import { clanApi } from '../services/clanApi';
 import { eventsApi } from '../services/eventsApi';
+import { contentApi } from '../services/contentApi';
 import { setAuthTokenProvider } from '../services/apiClient';
 
 export const store = configureStore({
@@ -14,6 +15,7 @@ export const store = configureStore({
       klazaApi.middleware,
       clanApi.middleware,
       eventsApi.middleware,
+      contentApi.middleware,
     ),
 });
 

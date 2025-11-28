@@ -14,8 +14,9 @@ const categories = ['Fanmade', 'KLAZA made', 'Poll', 'Post'];
 const LoungeListScreen = () => {
   const navigation = useNavigation<NativeStackNavigationProp<LoungeStackParamList>>();
 
-  const openDetail = (item: LoungeStackParamList[typeof ROUTES.LOUNGE_DETAIL]['item']) => {
-    navigation.navigate(ROUTES.LOUNGE_DETAIL, { item });
+  const openDetail = (item: LoungeStackParamList[typeof ROUTES.LOUNGE_DETAIL]['preview']) => {
+    if (!item) return;
+    navigation.navigate(ROUTES.LOUNGE_DETAIL, { klazaId: item.klazaId, preview: item });
   };
 
   return (

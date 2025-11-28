@@ -1,0 +1,1 @@
+export const getCurrentLang = () => 'en';

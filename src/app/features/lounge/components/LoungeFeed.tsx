@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect } from 'react';
 import { ActivityIndicator, FlatList, RefreshControl, StyleSheet, View } from 'react-native';
 import { Text } from 'react-native-paper';
-import { KlazaSearchItem, useLazySearchKlazaQuery } from '../../../services/klazaApi';
+import { KlazaPostListItem, useLazyGetKlazaPostsQuery } from '../../../services/klazaApi';
 import LoungeItemCard from './LoungeItemCard';
 import { useAppDispatch, useAppSelector } from '../../../store/hooks';
 import { finishLoading, resetFeed, selectLoungeState, setPageData, startLoading } from '../store/loungeSlice';
@@ -9,13 +9,13 @@ import { finishLoading, resetFeed, selectLoungeState, setPageData, startLoading 
 interface Props {
   header?: React.ReactElement;
   contentPadding?: number;
-  onPressItem?: (item: KlazaSearchItem) => void;
+  onPressItem?: (item: KlazaPostListItem) => void;
 }
 
 const LoungeFeed: React.FC<Props> = ({ header, contentPadding = 16, onPressItem }) => {
   const dispatch = useAppDispatch();
   const { items, page, hasNext, isLoading } = useAppSelector(selectLoungeState);
-  const [trigger, { isFetching }] = useLazySearchKlazaQuery();
+  const [trigger, { isFetching }] = useLazyGetKlazaPostsQuery();
 
   const loadPage = useCallback(
     async (targetPage: number, reset = false) => {
