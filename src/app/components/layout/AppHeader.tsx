@@ -3,7 +3,7 @@ import { Image, ImageSourcePropType, StyleSheet, TouchableOpacity, View } from '
 import { useNavigation } from '@react-navigation/native';
 import { Text, useTheme } from 'react-native-paper';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import { ROUTES } from '../../config/constants';
+import { ROUTES, TABS } from '../../config/constants';
 import { useAppSelector } from '../../store/hooks';
 import { LoginRedirectTarget } from '../../navigation/types';
 
@@ -16,6 +16,10 @@ const AppHeader: React.FC<Props> = ({ showProfileIcon = true, logoSource }) => {
   const navigation = useNavigation<any>();
   const theme = useTheme();
   const { accessToken } = useAppSelector((state) => state.auth);
+
+  const goHome = () => {
+    navigation.navigate(TABS.HOME as never);
+  };
 
   const goToMyPage = () => {
     if (!accessToken) {
@@ -32,11 +36,15 @@ const AppHeader: React.FC<Props> = ({ showProfileIcon = true, logoSource }) => {
   return (
     <View style={styles.container}>
       {logoSource ? (
-        <Image source={logoSource} style={styles.logoImage} resizeMode="contain" />
+        <TouchableOpacity onPress={goHome} hitSlop={8}>
+          <Image source={logoSource} style={styles.logoImage} resizeMode="contain" />
+        </TouchableOpacity>
       ) : (
-        <Text variant="titleMedium" style={styles.logoText}>
-          KLAZA Hub
-        </Text>
+        <TouchableOpacity onPress={goHome} hitSlop={8}>
+          <Text variant="titleMedium" style={styles.logoText}>
+            KLAZA Hub
+          </Text>
+        </TouchableOpacity>
       )}
       {showProfileIcon && (
         <TouchableOpacity onPress={goToMyPage} hitSlop={8}>

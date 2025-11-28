@@ -1,14 +1,12 @@
 import React, { useCallback } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { Chip, Text } from 'react-native-paper';
+import { Text } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
 import AppSafeArea from '../../../components/layout/AppSafeArea';
 import AppHeader from '../../../components/layout/AppHeader';
 import HomeFeedList from '../components/HomeFeedList';
 import { HomeFeedItem } from '../../../types/content';
 import { ROUTES, TABS } from '../../../config/constants';
-
-const categories = ['Fanmade', 'KLAZA made', 'Poll', 'Post'];
 
 const HomeIntroScreen: React.FC = () => {
   const navigation = useNavigation<any>();
@@ -59,11 +57,6 @@ const HomeIntroScreen: React.FC = () => {
           <View style={styles.header}>
             <Text style={styles.title}>Share the Story™</Text>
             <Text style={styles.subtitle}>Dive into today’s feature</Text>
-            <View style={styles.chips}>
-              {categories.map((label) => (
-                <Chip key={label}>{label}</Chip>
-              ))}
-            </View>
           </View>
         }
       />
@@ -84,11 +77,6 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     color: '#9CA3AF',
-  },
-  chips: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
   },
 });
 

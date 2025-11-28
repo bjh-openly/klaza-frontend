@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
-import { Chip, Text } from 'react-native-paper';
+import { Text } from 'react-native-paper';
 import LoungeFeed from '../components/LoungeFeed';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -8,8 +8,6 @@ import { LoungeStackParamList } from '../../../navigation/types';
 import { ROUTES } from '../../../config/constants';
 import AppSafeArea from '../../../components/layout/AppSafeArea';
 import AppHeader from '../../../components/layout/AppHeader';
-
-const categories = ['Fanmade', 'KLAZA made', 'Poll', 'Post'];
 
 const LoungeListScreen = () => {
   const navigation = useNavigation<NativeStackNavigationProp<LoungeStackParamList>>();
@@ -26,16 +24,9 @@ const LoungeListScreen = () => {
         header={
           <View style={styles.header}>
             <Text variant="headlineMedium" style={styles.title}>
-              Share the StoryTM
+              Share the Story™
             </Text>
             <Text style={styles.subtitle}>Dive into today’s feature</Text>
-            <View style={styles.chips}>
-              {categories.map((label) => (
-                <Chip key={label} style={styles.chip}>
-                  {label}
-                </Chip>
-              ))}
-            </View>
           </View>
         }
         contentPadding={16}
@@ -59,14 +50,6 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     color: '#9CA3AF',
-  },
-  chips: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-  },
-  chip: {
-    marginRight: 6,
   },
 });
 
