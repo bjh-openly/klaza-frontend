@@ -70,13 +70,13 @@ export type HomeStackParamList = {
 export type MainTabParamList = {
   [TABS.HOME]: NavigatorScreenParams<HomeStackParamList> | undefined;
   [TABS.LOUNGE]: NavigatorScreenParams<LoungeStackParamList> | undefined;
-  [TABS.EVENTS]: undefined;
-  [TABS.CLAN]: undefined;
+  [TABS.EVENTS]: NavigatorScreenParams<EventsStackParamList> | undefined;
+  [TABS.CLAN]: NavigatorScreenParams<ClanStackParamList> | undefined;
 };
 
 export type LoungeStackParamList = {
   [ROUTES.LOUNGE]: undefined;
-  [ROUTES.LOUNGE_DETAIL]: { item: import('../services/klazaApi').KlazaSearchItem };
+  [ROUTES.LOUNGE_DETAIL]: { klazaId: number; preview?: import('../services/klazaApi').KlazaPostListItem };
 };
 
 export type ClanStackParamList = {

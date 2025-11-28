@@ -7,6 +7,7 @@ import { authApi } from '../services/authApi';
 import { klazaApi } from '../services/klazaApi';
 import { clanApi } from '../services/clanApi';
 import { eventsApi } from '../services/eventsApi';
+import { contentApi } from '../services/contentApi';
 
 const rootReducer = combineReducers({
   auth: authReducer,
@@ -17,6 +18,7 @@ const rootReducer = combineReducers({
   [klazaApi.reducerPath]: klazaApi.reducer,
   [clanApi.reducerPath]: clanApi.reducer,
   [eventsApi.reducerPath]: eventsApi.reducer,
+  [contentApi.reducerPath]: contentApi.reducer,
 });
 
 export type RootState = ReturnType<typeof rootReducer>;

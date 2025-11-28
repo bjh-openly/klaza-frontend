@@ -1,75 +1,65 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
-import { Card, Chip, Text } from 'react-native-paper';
-import { KlazaSearchItem } from '../../../services/klazaApi';
+import { Text } from 'react-native-paper';
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import { KlazaPostListItem } from '../../../services/klazaApi';
+import FeedCard from '../../../components/common/FeedCard';
 
 interface Props {
-  item: KlazaSearchItem;
+  item: KlazaPostListItem;
   accentIndex?: number;
   onPress?: () => void;
 }
 
-const accentColors = ['#0ea5e9', '#a855f7', '#f97316', '#22c55e'];
-
 const LoungeItemCard: React.FC<Props> = ({ item, accentIndex = 0, onPress }) => {
-  const accent = accentColors[accentIndex % accentColors.length];
-  const snippet = item.contentSnippet.replace(/\{\{slot:[^}]+\}\}/g, '').trim();
-  const author = item.authorLogins?.[0] ?? 'KLAZA Editor';
-  const typeLabel = author.toLowerCase().includes('buzz') ? 'KLAZA made' : 'Fanmade';
+  const badge = item.badgeLabel || 'Post';
+  const dateValue = item.publishAt ?? item.createdAt;
 
   return (
-    <Card style={styles.card} onPress={onPress}>
-      <Card.Content style={styles.content}>
-        <View style={styles.row}>
-          <Chip style={[styles.chip, { backgroundColor: `${accent}22` }]} textStyle={{ color: accent }}>
-            {typeLabel}
-          </Chip>
-          <Text style={styles.meta}>{author}</Text>
+    <FeedCard
+      title={item.title}
+      subtitle={item.subtitle}
+      badgeLabel={badge}
+      thumbnailUrl={item.thumbnailUrl || undefined}
+      contentType={item.contentType}
+      onPress={onPress}
+      pinned={!!item.pinned}
+      footer={
+        <View style={styles.footerRow}>
+          {item.pinned && (
+            <View style={styles.pinnedTag}>
+              <MaterialCommunityIcons name="pin" color="#fbbf24" size={16} />
+              <Text style={styles.pinnedText}>Pinned</Text>
+            </View>
+          )}
+          <Text style={styles.date}>{new Date(dateValue).toLocaleDateString()}</Text>
         </View>
-        <Text variant="titleMedium" style={styles.title} numberOfLines={2}>
-          {item.title}
-        </Text>
-        <Text variant="bodyMedium" style={styles.snippet} numberOfLines={3}>
-          {snippet}
-        </Text>
-        <Text style={styles.date}>{new Date(item.publishAt).toLocaleDateString()}</Text>
-      </Card.Content>
-    </Card>
+      }
+      accentIndex={accentIndex}
+      subtitleLines={2}
+    />
   );
 };
 
 const styles = StyleSheet.create({
-  card: {
-    marginBottom: 16,
-    overflow: 'hidden',
-    borderRadius: 16,
-    backgroundColor: '#111827',
-  },
-  content: {
-    paddingTop: 12,
-  },
-  title: {
-    marginBottom: 8,
-    color: '#F9FAFB',
-  },
-  snippet: {
-    color: '#E5E7EB',
-  },
-  date: {
-    marginTop: 10,
-    color: '#9CA3AF',
-    fontSize: 12,
-  },
-  chip: {
-    marginRight: 8,
-  },
-  row: {
+  footerRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    gap: 8,
   },
-  meta: {
-    color: '#9CA3AF',
+  pinnedTag: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  pinnedText: {
+    color: '#fbbf24',
+    fontWeight: '600',
+  },
+  date: {
+    color: '#d1d5db',
+    fontSize: 12,
   },
 });
 

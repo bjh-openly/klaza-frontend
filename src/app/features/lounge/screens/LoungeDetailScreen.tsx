@@ -1,42 +1,72 @@
 import React, { useMemo } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
-import { Chip, Divider, Text } from 'react-native-paper';
+import { ImageBackground, ScrollView, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Button, Chip, Divider, Text } from 'react-native-paper';
 import { RouteProp, useRoute } from '@react-navigation/native';
 import { LoungeStackParamList } from '../../../navigation/types';
 import { ROUTES } from '../../../config/constants';
 import AppSafeArea from '../../../components/layout/AppSafeArea';
-import { useAppSelector } from '../../../store/hooks';
-import { selectLoungeByContentId } from '../store/loungeSlice';
 import AppHeader from '../../../components/layout/AppHeader';
+import { useGetKlazaPostDetailQuery } from '../../../services/klazaApi';
 
 const LoungeDetailScreen = () => {
   const route = useRoute<RouteProp<LoungeStackParamList, typeof ROUTES.LOUNGE_DETAIL>>();
-  const { item: paramItem } = route.params;
-  const cachedItem = useAppSelector(selectLoungeByContentId(paramItem.contentId, paramItem.klazaId));
-  const item = cachedItem ?? paramItem;
+  const { klazaId, preview } = route.params;
+  const { data, isFetching, refetch, isError } = useGetKlazaPostDetailQuery({ klazaId });
+  const detail = data ?? preview;
 
-  const snippet = item.contentSnippet.replace(/\{\{slot:[^}]+\}\}/g, '').trim();
-  const author = item.authorLogins?.[0] ?? 'KLAZA Editor Judy';
-  const isKlazaMade = author.toLowerCase().includes('buzz');
+  const author = useMemo(() => detail?.subtitle || 'Brought to you by: KLAZA Editor', [detail?.subtitle]);
+  const label = useMemo(() => detail?.badgeLabel || 'KLAZA made', [detail?.badgeLabel]);
 
-  const label = useMemo(() => (isKlazaMade ? 'KLAZA made' : 'Fanmade'), [isKlazaMade]);
+  if (isFetching && !detail) {
+    return (
+      <AppSafeArea>
+        <AppHeader />
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator />
+        </View>
+      </AppSafeArea>
+    );
+  }
+
+  if (isError && !detail) {
+    return (
+      <AppSafeArea>
+        <AppHeader />
+        <View style={styles.loadingContainer}>
+          <Text>Failed to load lounge story.</Text>
+          <Button mode="contained" onPress={refetch} style={styles.retryButton}>
+            Retry
+          </Button>
+        </View>
+      </AppSafeArea>
+    );
+  }
+
+  if (!detail) return null;
 
   return (
     <AppSafeArea>
       <AppHeader />
       <ScrollView contentContainerStyle={styles.container}>
         <View style={styles.hero}>
-          <Chip style={styles.chip}>{label}</Chip>
-          <Text style={styles.meta}>
-            {isKlazaMade ? 'Brought to you by: KLAZA Editor Judy' : 'Fanmade'}
-          </Text>
-          <Text variant="headlineMedium" style={styles.title}>
-            {item.title}
-          </Text>
+          <ImageBackground
+            source={detail.coverImageUrl ? { uri: detail.coverImageUrl } : undefined}
+            style={styles.cover}
+            imageStyle={styles.coverImage}
+          >
+            <View style={styles.coverOverlay}>
+              <Chip style={styles.chip} textStyle={styles.chipText}>
+                {label}
+              </Chip>
+              <Text variant="headlineMedium" style={styles.title}>
+                {detail.title}
+              </Text>
+              <Text style={styles.meta}>{author}</Text>
+            </View>
+          </ImageBackground>
         </View>
 
-        <Text style={styles.body}>{snippet || 'Content is being prepared.'}</Text>
-        <Text style={styles.body}>"Share the Story"에서 추천하는 최신 KLAZA 글입니다.</Text>
+        <Text style={styles.body}>{detail.body || 'Content is being prepared.'}</Text>
 
         <Divider style={styles.divider} />
         <View style={styles.comments}>
@@ -58,8 +88,27 @@ const styles = StyleSheet.create({
   hero: {
     gap: 6,
   },
+  cover: {
+    height: 260,
+    width: '100%',
+  },
+  coverImage: {
+    borderRadius: 16,
+  },
+  coverOverlay: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    gap: 8,
+    padding: 16,
+    backgroundColor: 'rgba(0,0,0,0.35)',
+  },
   chip: {
     alignSelf: 'flex-start',
+    backgroundColor: 'rgba(255,255,255,0.9)',
+  },
+  chipText: {
+    color: '#111827',
+    fontWeight: '700',
   },
   meta: {
     color: '#9CA3AF',
@@ -80,6 +129,16 @@ const styles = StyleSheet.create({
   },
   comment: {
     color: '#E5E7EB',
+  },
+  loadingContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 24,
+    backgroundColor: '#000000',
+  },
+  retryButton: {
+    marginTop: 12,
   },
 });
 

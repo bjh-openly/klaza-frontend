@@ -1,9 +1,9 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { KlazaSearchItem } from '../../../services/klazaApi';
+import { KlazaPostListItem } from '../../../services/klazaApi';
 import { RootState } from '../../../store';
 
 interface LoungeState {
-  items: KlazaSearchItem[];
+  items: KlazaPostListItem[];
   page: number;
   hasNext: boolean;
   isLoading: boolean;
@@ -16,12 +16,18 @@ const initialState: LoungeState = {
   isLoading: false,
 };
 
-const mergeItems = (current: KlazaSearchItem[], incoming: KlazaSearchItem[]) => {
+const mergeItems = (current: KlazaPostListItem[], incoming: KlazaPostListItem[]) => {
   const map = new Map(current.map((item) => [`${item.contentId}-${item.klazaId}`, item] as const));
   incoming.forEach((item) => {
     map.set(`${item.contentId}-${item.klazaId}`, item);
   });
-  return Array.from(map.values()).sort((a, b) => b.registeredAt.localeCompare(a.registeredAt));
+  return Array.from(map.values()).sort((a, b) => {
+    if (a.pinned && !b.pinned) return -1;
+    if (!a.pinned && b.pinned) return 1;
+    const aDate = a.publishAt ?? a.createdAt;
+    const bDate = b.publishAt ?? b.createdAt;
+    return bDate.localeCompare(aDate);
+  });
 };
 
 const loungeSlice = createSlice({
@@ -39,7 +45,7 @@ const loungeSlice = createSlice({
     },
     setPageData(
       state,
-      action: PayloadAction<{ items: KlazaSearchItem[]; page: number; hasNext: boolean; reset?: boolean }>,
+      action: PayloadAction<{ items: KlazaPostListItem[]; page: number; hasNext: boolean; reset?: boolean }>,
     ) {
       const { items, page, hasNext, reset } = action.payload;
       state.items = reset ? items : mergeItems(state.items, items);
@@ -47,7 +53,7 @@ const loungeSlice = createSlice({
       state.hasNext = hasNext;
       state.isLoading = false;
     },
-    setItems(state, action: PayloadAction<KlazaSearchItem[]>) {
+    setItems(state, action: PayloadAction<KlazaPostListItem[]>) {
       state.items = action.payload;
     },
   },
