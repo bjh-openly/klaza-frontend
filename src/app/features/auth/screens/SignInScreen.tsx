@@ -100,7 +100,7 @@ const SignInScreen: React.FC<NativeStackScreenProps<AuthStackParamList, typeof R
       <ScrollView contentContainerStyle={styles.container}>
         <View style={styles.header}>
           <Text variant="headlineLarge" style={styles.title}>
-            Share the StoryTM
+            Share the Story™
           </Text>
           <Text style={styles.subtitle}>Welcome back to KLAZA Hub.</Text>
         </View>
