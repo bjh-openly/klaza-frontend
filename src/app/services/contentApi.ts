@@ -39,6 +39,7 @@ export const contentApi = createApi({
           url: '/content/homepage',
           method: 'get',
           params: { page, size, lang },
+          headers: { 'Accept-Language': lang },
         });
 
         if (response.error) return { error: response.error };
