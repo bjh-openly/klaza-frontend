@@ -2,6 +2,7 @@ import axios, { AxiosError, AxiosRequestConfig } from 'axios';
 import { API_BASE_URL } from '../config/env';
 import { BaseQueryFn } from '@reduxjs/toolkit/query';
 import { getStoredAccessToken } from './session';
+import { getCurrentLang } from './locale';
 
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
@@ -23,6 +24,11 @@ apiClient.interceptors.request.use(async (config) => {
       Authorization: `Bearer ${token}`,
     };
   }
+
+  config.headers = {
+    ...(config.headers || {}),
+    'Accept-Language': getCurrentLang(),
+  };
   return config;
 });
 
@@ -38,13 +44,14 @@ export const axiosBaseQuery = (): BaseQueryFn<
     method?: AxiosRequestConfig['method'];
     data?: AxiosRequestConfig['data'];
     params?: AxiosRequestConfig['params'];
+    headers?: AxiosRequestConfig['headers'];
   },
   unknown,
   ApiError
 > =>
-  async ({ url, method = 'get', data, params }) => {
+  async ({ url, method = 'get', data, params, headers }) => {
     try {
-      const result = await apiClient({ url, method, data, params });
+      const result = await apiClient({ url, method, data, params, headers });
       return { data: result.data };
     } catch (axiosError) {
       const err = axiosError as AxiosError;
