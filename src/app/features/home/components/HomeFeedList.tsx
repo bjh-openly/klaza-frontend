@@ -83,7 +83,7 @@ const HomeFeedList: React.FC<Props> = ({ onPressItem, contentPadding = 0, header
       onEndReachedThreshold={0.3}
       ListEmptyComponent={() => (
         <View style={styles.emptyState}>
-          {isFetching ? <ActivityIndicator /> : <Text style={styles.emptyText}>No stories yet.</Text>}
+          {isFetching ? <ActivityIndicator /> : <Text style={styles.emptyText}>No Stories Yet</Text>}
         </View>
       )}
       ListFooterComponent={isFetching && items.length > 0 ? <ActivityIndicator style={styles.footer} /> : null}

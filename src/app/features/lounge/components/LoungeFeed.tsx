@@ -64,7 +64,7 @@ const LoungeFeed: React.FC<Props> = ({ header, contentPadding = 16, onPressItem 
       ListHeaderComponent={header}
       ListEmptyComponent={() => (
         <View style={styles.emptyState}>
-          {isFetching || isLoading ? <ActivityIndicator /> : <Text>No lounge stories yet.</Text>}
+          {isFetching || isLoading ? <ActivityIndicator /> : <Text>No Stories Yet</Text>}
         </View>
       )}
       ListFooterComponent={isFetching && items.length > 0 ? <ActivityIndicator style={styles.footer} /> : null}

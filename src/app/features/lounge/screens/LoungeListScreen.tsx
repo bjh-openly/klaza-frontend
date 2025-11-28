@@ -20,6 +20,11 @@ const LoungeListScreen = () => {
   return (
     <AppSafeArea>
       <AppHeader />
+      <View style={styles.pageHeader}>
+        <Text variant="titleLarge" style={styles.pageTitle}>
+          Lounge
+        </Text>
+      </View>
       <LoungeFeed
         header={
           <View style={styles.header}>
@@ -43,6 +48,15 @@ const styles = StyleSheet.create({
     backgroundColor: '#000000',
     paddingHorizontal: 16,
     paddingTop: 12,
+  },
+  pageHeader: {
+    backgroundColor: '#000000',
+    paddingHorizontal: 16,
+    paddingTop: 12,
+  },
+  pageTitle: {
+    color: '#F9FAFB',
+    fontWeight: '700',
   },
   title: {
     fontWeight: '700',
