@@ -44,10 +44,8 @@ const HomeFeedList: React.FC<Props> = ({ onPressItem, contentPadding = 0, header
   );
 
   useEffect(() => {
-    if (!items.length && !isFetching) {
-      loadPage(0, true);
-    }
-  }, [isFetching, items.length, loadPage]);
+    loadPage(0, true);
+  }, [loadPage]);
 
   const onRefresh = () => loadPage(0, true);
 
