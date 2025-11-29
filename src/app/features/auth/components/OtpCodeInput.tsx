@@ -41,7 +41,7 @@ const OtpCodeInput: React.FC<Props> = ({ value, setValue, cellCount = 8 }) => {
           const symbol = value[index];
           return (
             <View key={index} style={[styles.cell, symbol ? styles.filledCell : null]}>
-              <Text style={styles.cellText}>{symbol ?? ' '}</Text>
+              <Text style={[styles.cellText, symbol ? styles.filledCellText : null]}>{symbol ?? ' '}</Text>
             </View>
           );
         })}
@@ -78,9 +78,13 @@ const styles = StyleSheet.create({
   },
   filledCell: {
     borderColor: '#5A3EED',
+    backgroundColor: '#3B82F6',
   },
   cellText: {
     fontSize: 18,
+  },
+  filledCellText: {
+    color: '#FFFFFF',
   },
 });
 
