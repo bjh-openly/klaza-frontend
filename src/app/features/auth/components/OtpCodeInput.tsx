@@ -1,5 +1,5 @@
-import React, { useCallback, useRef } from 'react';
-import { StyleSheet, TextInput, View } from 'react-native';
+import React, { useCallback, useEffect, useRef } from 'react';
+import { Pressable, StyleSheet, TextInput, View } from 'react-native';
 import { Text } from 'react-native-paper';
 
 interface Props {
@@ -10,6 +10,10 @@ interface Props {
 
 const OtpCodeInput: React.FC<Props> = ({ value, setValue, cellCount = 8 }) => {
   const inputRef = useRef<TextInput | null>(null);
+
+  useEffect(() => {
+    inputRef.current?.focus();
+  }, []);
 
   const handleChange = useCallback(
     (text: string) => {
@@ -32,7 +36,7 @@ const OtpCodeInput: React.FC<Props> = ({ value, setValue, cellCount = 8 }) => {
         autoFocus
         style={styles.hiddenInput}
       />
-      <View style={styles.cellsRow}>
+      <Pressable onPress={() => inputRef.current?.focus()} style={styles.cellsRow} accessibilityRole="button">
         {Array.from({ length: cellCount }).map((_, index) => {
           const symbol = value[index];
           return (
@@ -41,7 +45,7 @@ const OtpCodeInput: React.FC<Props> = ({ value, setValue, cellCount = 8 }) => {
             </View>
           );
         })}
-      </View>
+      </Pressable>
     </View>
   );
 };
@@ -51,8 +55,10 @@ const styles = StyleSheet.create({
     marginVertical: 12,
   },
   hiddenInput: {
-    ...StyleSheet.absoluteFillObject,
+    position: 'absolute',
     opacity: 0,
+    height: 1,
+    width: 1,
   },
   cellsRow: {
     flexDirection: 'row',
