@@ -4,6 +4,8 @@ import { Button, HelperText, Text, TextInput } from 'react-native-paper';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { AuthStackParamList } from '../../../navigation/types';
 import { ROUTES } from '../../../config/constants';
+import AppSafeArea from '../../../components/layout/AppSafeArea';
+import ModalCloseHeader from '../../../components/layout/ModalCloseHeader';
 
 const SignUpBirthScreen: React.FC<NativeStackScreenProps<AuthStackParamList, typeof ROUTES.SIGN_UP_BIRTH>> = ({
   navigation,
@@ -29,59 +31,70 @@ const SignUpBirthScreen: React.FC<NativeStackScreenProps<AuthStackParamList, typ
     });
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <Text variant="headlineSmall" style={styles.title}>
-        Date of Birth
-      </Text>
-      <Text style={styles.subtitle}>
-        *You can agree to skip, but some content may need additional age confirmation to access.
-      </Text>
-      <TextInput
-        mode="outlined"
-        label="Date of Birth"
-        placeholder="19990101"
-        value={normalizedBirth}
-        onChangeText={setBirthDate}
-        style={styles.input}
-      />
-      <HelperText type={isValidBirth ? 'info' : 'error'} visible>
-        Enter 8 digits (YYYYMMDD)
-      </HelperText>
-      <View style={styles.genderRow}>
-        {(
-          [
-            { label: 'Female', value: 'FEMALE' },
-            { label: 'Male', value: 'MALE' },
-            { label: 'Prefer not to mention', value: 'UNKNOWN' },
-          ] as const
-        ).map((option) => (
-          <Button
-            key={option.value}
-            mode={gender === option.value ? 'contained-tonal' : 'outlined'}
-            onPress={() => setGender(option.value)}
-            style={styles.genderButton}
-          >
-            {option.label}
-          </Button>
-        ))}
-      </View>
-      <Button mode="contained" onPress={goNext} style={styles.button} disabled={!isValidBirth}>
-        Submit
-      </Button>
-    </ScrollView>
+    <AppSafeArea>
+      <ModalCloseHeader onCloseToRoot />
+      <ScrollView contentContainerStyle={styles.container}>
+        <Text variant="headlineSmall" style={styles.title}>
+          Date of Birth
+        </Text>
+        <Text style={styles.subtitle}>
+          *You can agree to skip, but some content may need additional age confirmation to access.
+        </Text>
+        <TextInput
+          mode="outlined"
+          label="Date of Birth"
+          placeholder="19990101"
+          value={normalizedBirth}
+          onChangeText={setBirthDate}
+          style={styles.input}
+          underlineColor="transparent"
+          outlineColor="#4B5563"
+          activeOutlineColor="#F9FAFB"
+          textColor="#F9FAFB"
+        />
+        <HelperText type={isValidBirth ? 'info' : 'error'} visible>
+          Enter 8 digits (YYYYMMDD)
+        </HelperText>
+        <View style={styles.genderRow}>
+          {(
+            [
+              { label: 'Female', value: 'FEMALE' },
+              { label: 'Male', value: 'MALE' },
+              { label: 'Prefer not to mention', value: 'UNKNOWN' },
+            ] as const
+          ).map((option) => (
+            <Button
+              key={option.value}
+              mode={gender === option.value ? 'contained' : 'outlined'}
+              onPress={() => setGender(option.value)}
+              style={styles.genderButton}
+              buttonColor={gender === option.value ? '#111827' : undefined}
+              textColor={gender === option.value ? '#F9FAFB' : undefined}
+            >
+              {option.label}
+            </Button>
+          ))}
+        </View>
+        <Button mode="contained" onPress={goNext} style={styles.button} disabled={!isValidBirth}>
+          Submit
+        </Button>
+      </ScrollView>
+    </AppSafeArea>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     padding: 16,
+    backgroundColor: '#000000',
   },
   title: {
     marginBottom: 4,
+    color: '#F9FAFB',
   },
   subtitle: {
     marginBottom: 12,
-    color: '#6b7280',
+    color: '#9CA3AF',
   },
   input: {
     marginBottom: 12,

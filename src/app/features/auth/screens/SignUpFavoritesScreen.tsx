@@ -5,6 +5,8 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { AuthStackParamList } from '../../../navigation/types';
 import { ROUTES } from '../../../config/constants';
 import { useSignupMutation } from '../../../services/authApi';
+import AppSafeArea from '../../../components/layout/AppSafeArea';
+import ModalCloseHeader from '../../../components/layout/ModalCloseHeader';
 
 const options = ['drama', 'movie', 'webtoon', 'novels', 'romance', 'fantasy', 'comedy', 'horror', 'mystery', 'life', 'teens'];
 
@@ -62,32 +64,45 @@ const SignUpFavoritesScreen: React.FC<NativeStackScreenProps<AuthStackParamList,
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <Text variant="headlineSmall" style={styles.title}>
-        Choose your favs for a quick start.
-      </Text>
-      <View style={styles.chips}>
-        {options.map((item) => (
-          <Chip key={item} selected={selected.includes(item)} onPress={() => toggle(item)} style={styles.chip}>
-            {item}
-          </Chip>
-        ))}
-      </View>
-      {error && <HelperText type="error">{error}</HelperText>}
-      <HelperText type={canSubmit ? 'info' : 'error'}>Pick up to 3 genres.</HelperText>
-      <Button mode="contained" onPress={handleSubmit} style={styles.button} disabled={!canSubmit || isLoading}>
-        Submit
-      </Button>
-    </ScrollView>
+    <AppSafeArea>
+      <ModalCloseHeader onCloseToRoot />
+      <ScrollView contentContainerStyle={styles.container}>
+        <Text variant="headlineSmall" style={styles.title}>
+          Choose your favs for a quick start.
+        </Text>
+        <View style={styles.chips}>
+          {options.map((item) => (
+            <Chip
+              key={item}
+              selected={selected.includes(item)}
+              onPress={() => toggle(item)}
+              style={[styles.chip, selected.includes(item) && styles.chipSelected]}
+              showSelectedCheck={false}
+              textStyle={styles.chipText}
+              selectedColor="#F9FAFB"
+            >
+              {item}
+            </Chip>
+          ))}
+        </View>
+        {error && <HelperText type="error">{error}</HelperText>}
+        <HelperText type={canSubmit ? 'info' : 'error'}>Pick up to 3 genres.</HelperText>
+        <Button mode="contained" onPress={handleSubmit} style={styles.button} disabled={!canSubmit || isLoading}>
+          Submit
+        </Button>
+      </ScrollView>
+    </AppSafeArea>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     padding: 16,
+    backgroundColor: '#000000',
   },
   title: {
     marginBottom: 12,
+    color: '#F9FAFB',
   },
   chips: {
     flexDirection: 'row',
@@ -97,6 +112,15 @@ const styles = StyleSheet.create({
   },
   chip: {
     marginRight: 8,
+    backgroundColor: '#111827',
+    borderColor: '#4B5563',
+    borderWidth: 1,
+  },
+  chipSelected: {
+    backgroundColor: '#1F2937',
+  },
+  chipText: {
+    color: '#E5E7EB',
   },
   button: {
     marginTop: 8,
