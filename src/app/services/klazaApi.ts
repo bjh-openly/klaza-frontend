@@ -33,6 +33,22 @@ export interface KlazaPostDetail {
   commentCount?: number | null;
 }
 
+export interface KlazaComment {
+  commentId: number;
+  contentId: number;
+  parentCommentId?: number | null;
+  text: string;
+  authorActorId: number;
+  status: string;
+  createdAt: string;
+}
+
+export interface PostKlazaCommentRequest {
+  contentId: number;
+  parentCommentId?: number | null;
+  text: string;
+}
+
 const mockKlazaList: KlazaPostListResponse = {
   page: 0,
   size: 10,
@@ -66,6 +82,27 @@ const mockKlazaDetail: KlazaPostDetail = {
   likeCount: 0,
   commentCount: 0,
 };
+
+const mockKlazaComments: KlazaComment[] = [
+  {
+    commentId: 9001,
+    contentId: 101,
+    parentCommentId: null,
+    text: '이 콘텐츠 정말 유용하네요! 감사합니다.',
+    authorActorId: 321,
+    status: 'CREATED',
+    createdAt: '2025-01-01T08:30:00Z',
+  },
+  {
+    commentId: 9002,
+    contentId: 101,
+    parentCommentId: null,
+    text: '공감해요. 다음 글도 기대할게요.',
+    authorActorId: 654,
+    status: 'CREATED',
+    createdAt: '2025-01-01T09:10:00Z',
+  },
+];
 
 export const klazaApi = createApi({
   reducerPath: 'klazaApi',
@@ -109,7 +146,44 @@ export const klazaApi = createApi({
         return { data };
       },
     }),
+    postKlazaComment: builder.mutation<KlazaComment, PostKlazaCommentRequest>({
+      async queryFn(args, _api, _extra, fetchWithBQ) {
+        if (FEATURE_FLAGS.enableMockApis) {
+          const now = new Date().toISOString();
+          const mockComment: KlazaComment = {
+            ...mockKlazaComments[0],
+            ...args,
+            parentCommentId: args.parentCommentId ?? null,
+            commentId: Math.floor(Math.random() * 1000000),
+            authorActorId: 1,
+            status: 'CREATED',
+            createdAt: now,
+          };
+
+          return { data: mockComment };
+        }
+
+        const response = await fetchWithBQ({
+          url: '/klaza/comment',
+          method: 'post',
+          data: {
+            contentId: args.contentId,
+            parentCommentId: args.parentCommentId ?? null,
+            text: args.text,
+          },
+        });
+
+        if (response.error) return { error: response.error };
+        const data = response.data as KlazaComment;
+        return { data };
+      },
+    }),
   }),
 });
 
-export const { useGetKlazaPostsQuery, useLazyGetKlazaPostsQuery, useGetKlazaPostDetailQuery } = klazaApi;
+export const {
+  useGetKlazaPostsQuery,
+  useLazyGetKlazaPostsQuery,
+  useGetKlazaPostDetailQuery,
+  usePostKlazaCommentMutation,
+} = klazaApi;

@@ -7,6 +7,7 @@ import { ROUTES } from '../../../config/constants';
 import AppSafeArea from '../../../components/layout/AppSafeArea';
 import AppHeader from '../../../components/layout/AppHeader';
 import { useGetKlazaPostDetailQuery } from '../../../services/klazaApi';
+import LoungeComments from '../components/LoungeComments';
 
 const LoungeDetailScreen = () => {
   const route = useRoute<RouteProp<LoungeStackParamList, typeof ROUTES.LOUNGE_DETAIL>>();
@@ -16,6 +17,10 @@ const LoungeDetailScreen = () => {
 
   const author = useMemo(() => detail?.subtitle || 'Brought to you by: KLAZA Editor', [detail?.subtitle]);
   const label = useMemo(() => detail?.badgeLabel || 'KLAZA made', [detail?.badgeLabel]);
+  const bodyText = useMemo(
+    () => detail?.body?.replace(/<[^>]+>/g, '') || 'Content is being prepared.',
+    [detail?.body],
+  );
 
   if (isFetching && !detail) {
     return (
@@ -66,13 +71,11 @@ const LoungeDetailScreen = () => {
           </ImageBackground>
         </View>
 
-        <Text style={styles.body}>{detail.body || 'Content is being prepared.'}</Text>
+        <Text style={styles.body}>{bodyText}</Text>
 
         <Divider style={styles.divider} />
         <View style={styles.comments}>
-          <Text variant="titleMedium">Comments</Text>
-          <Text style={styles.comment}>User123: Love this take!</Text>
-          <Text style={styles.comment}>Another fan: Can’t wait for more.</Text>
+          <LoungeComments contentId={detail.contentId} reportedCount={detail.commentCount} />
         </View>
       </ScrollView>
     </AppSafeArea>
@@ -125,10 +128,7 @@ const styles = StyleSheet.create({
     marginVertical: 8,
   },
   comments: {
-    gap: 6,
-  },
-  comment: {
-    color: '#E5E7EB',
+    gap: 14,
   },
   loadingContainer: {
     flex: 1,
